@@ -9,8 +9,12 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
-        Text("Hello, World!")
+        GeometryReader { geometry in
+            BoardView(width: geometry.size.width, height: geometry.size.height)
+        }
+        .padding(EdgeInsets(top: 100, leading: 70, bottom: 20, trailing: 70))
     }
 }
 
