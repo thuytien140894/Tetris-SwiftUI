@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-struct Cell {
+class Cell: ObservableObject {
     
-    var isOpen = false
-    var color: Color = .clear
+    @Published var isOpen = true
+    @Published var color: Color = .clear
 }
