@@ -10,18 +10,25 @@ import SwiftUI
 
 struct Board {
     
-    private(set) var cells: [[Cell]] = []
     let rowCount: Int
     let columnCount: Int
+    let cells: [[Cell]]
+    
+    init() {
+        
+        self.init(rowCount: 0, columnCount: 0)
+    }
     
     init(rowCount: Int, columnCount: Int) {
         
         self.rowCount = rowCount
         self.columnCount = columnCount
         
+        var newCells: [[Cell]] = []
         for _ in 0..<rowCount {
             let row: [Cell] = (0..<columnCount).map { _ in Cell() }
-            cells.append(row)
+            newCells.append(row)
         }
+        cells = newCells
     }
 }

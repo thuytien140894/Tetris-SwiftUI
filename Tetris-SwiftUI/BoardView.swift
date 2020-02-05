@@ -10,35 +10,23 @@ import SwiftUI
 
 struct BoardView: View {
     
-    private let cellWidth: CGFloat
-    private let board: Board
+    @Binding private var board: Board
+    @Binding private var cellWidth: CGFloat
     
-    init(width: CGFloat, height: CGFloat) {
+    init(board: Binding<Board>, cellWidth: Binding<CGFloat>) {
         
-        let columnCount = 10
-        let screenRatio = height / width
-        let estimatedRowCount = CGFloat(columnCount) * screenRatio
-        let rowCount = Int(estimatedRowCount.rounded(.down))
-        board = Board(rowCount: rowCount, columnCount: columnCount)
-        
-        cellWidth = width / CGFloat(columnCount)
+        self._board = board
+        self._cellWidth = cellWidth
     }
     
     var body: some View {
         
-        VStack {
-            Button("Test") {
-                let cell = self.board.cells[0][0]
-                cell.isOpen = false
-                cell.color = Color.blue
-            }
-            VStack(spacing: 2) {
-                ForEach(0..<self.board.rowCount, id: \.self) { row in
-                    HStack(spacing: 2) {
-                        ForEach(0..<self.board.columnCount, id: \.self) { column in
-                            CellView(cell: self.board.cells[row][column])
-                                .frame(width: self.cellWidth, height: self.cellWidth)
-                        }
+        VStack(spacing: 2) {
+            ForEach(0..<self.board.rowCount, id: \.self) { row in
+                HStack(spacing: 2) {
+                    ForEach(0..<self.board.columnCount, id: \.self) { column in
+                        CellView(cell: self.board.cells[row][column])
+                            .frame(width: self.cellWidth, height: self.cellWidth)
                     }
                 }
             }
@@ -48,6 +36,7 @@ struct BoardView: View {
 
 struct BoardView_Previews: PreviewProvider {
     static var previews: some View {
-        BoardView(width: 300, height: 700)
+        let board = Board(rowCount: 4, columnCount: 5)
+        return BoardView(board: .constant(board), cellWidth: .constant(50))
     }
 }
