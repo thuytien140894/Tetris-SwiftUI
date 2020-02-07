@@ -31,4 +31,9 @@ struct Board {
         }
         cells = newCells
     }
+    
+    func isValidIndex(row: Int, column: Int) -> Bool {
+        
+        return row >= 0 && column >= 0
+    }
 }

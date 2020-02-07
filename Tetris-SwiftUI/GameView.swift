@@ -20,14 +20,14 @@ struct GameView: View {
                 .onAppear(perform: { self.setUpBoard(size: geometry.size) })
         }
         .padding(EdgeInsets(top: 100, leading: 70, bottom: 20, trailing: 70))
-        .onAppear(perform: gameManager.startGame)
     }
     
     private func setUpBoard(size: CGSize) {
         
         board = makeBoard(width: size.width, height: size.height)
-        gameManager.board = board
         cellWidth = size.width / CGFloat(board.columnCount)
+        
+        gameManager.startGame(for: board)
     }
     
     private func makeBoard(width: CGFloat, height: CGFloat) -> Board {
