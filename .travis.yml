@@ -1,0 +1,5 @@
+language: swift
+xcode_project: Tetris-SwiftUI.xcodeproj
+xcode_scheme: Tetris-SwiftUI
+osx_image: xcode11.3
+xcode_destination: platform=iOS Simulator,OS=13.3,name=iPhone 11 Pro
