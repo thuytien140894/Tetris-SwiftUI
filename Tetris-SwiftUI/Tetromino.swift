@@ -140,4 +140,18 @@ struct Tetromino {
         
         return adjustedCoordinates
     }
+    
+    mutating func contains(coordinate: Coordinate) -> Bool {
+        
+        let matchedCoordinate = coordinates.first(where: { $0 == coordinate })
+        return matchedCoordinate != nil
+    }
+}
+
+extension Tetromino {
+    
+    init() {
+        
+        self.init(type: .i, orientation: .one, color: Color.white)
+    }
 }

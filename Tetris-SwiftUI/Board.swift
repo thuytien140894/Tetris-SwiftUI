@@ -32,8 +32,14 @@ struct Board {
         cells = newCells
     }
     
-    func isValidIndex(row: Int, column: Int) -> Bool {
+    func cell(atRow row: Int, column: Int) -> Cell? {
         
-        return row >= 0 && column >= 0
+        guard row >= 0 else { return Cell() }
+        
+        guard
+            (0..<rowCount).contains(row) &&
+            (0..<columnCount).contains(column) else { return nil }
+        
+        return cells[row][column]
     }
 }

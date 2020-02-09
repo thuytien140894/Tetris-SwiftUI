@@ -10,7 +10,7 @@ import SwiftUI
 
 struct GameView: View {
     
-    @State private var gameManager = GameManager()
+    private var gameManager = GameManager()
     @State private var board = Board()
     @State private var cellWidth: CGFloat = 0
     
