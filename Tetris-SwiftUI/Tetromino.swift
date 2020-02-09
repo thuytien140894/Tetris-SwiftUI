@@ -81,11 +81,27 @@ enum Orientation: Double, CaseIterable {
     }
 }
 
-struct Tetromino {
+class Tetromino: ObservableObject {
     
     let type: TetrominoType
     let orientation: Orientation
     let color: Color
+    
+    @Published var coordinates: [Coordinate] = []
+    
+    convenience init() {
+        
+        self.init(type: .i, orientation: .one, color: .white)
+    }
+    
+    init(type: TetrominoType, orientation: Orientation, color: Color) {
+        
+        self.type = type
+        self.orientation = orientation
+        self.color = color
+        
+        coordinates = makeInitialCoordinates()
+    }
     
     var xPosition = 0 {
         didSet {
@@ -100,10 +116,6 @@ struct Tetromino {
         return orientation.width(fromDimension: dimension)
     }
     
-    lazy var coordinates: [Coordinate] = {
-        makeCoordinates()
-    }()
-    
     /// When a tetromino first appears on the board, its cells
     /// should be above the first row so that it can descend into
     /// view later. As a result, we adjust the y values to be
@@ -111,7 +123,7 @@ struct Tetromino {
     /// around the origin, x values can be negative, which are
     /// invalid for board indexing. We want to adjust these x values
     /// to be greater than or equal to 0.
-    private func makeCoordinates() -> [Coordinate] {
+    private func makeInitialCoordinates() -> [Coordinate] {
         
         let originalCoordinates = orientation.rotate(coordinates: type.coordinates)
         var adjustedXTheta = 0
@@ -141,17 +153,9 @@ struct Tetromino {
         return adjustedCoordinates
     }
     
-    mutating func contains(coordinate: Coordinate) -> Bool {
+    func contains(coordinate: Coordinate) -> Bool {
         
         let matchedCoordinate = coordinates.first(where: { $0 == coordinate })
         return matchedCoordinate != nil
-    }
-}
-
-extension Tetromino {
-    
-    init() {
-        
-        self.init(type: .i, orientation: .one, color: Color.white)
     }
 }

@@ -32,13 +32,20 @@ struct Board {
         cells = newCells
     }
     
+    /// Returns a cell at the specified row and column.
+    /// Whereas the column index must be within bounds, the row
+    /// index can be negative for tetrominos that have not
+    /// descended into view. Therefore, we return a "dummy"
+    /// cell to indicate validity.
     func cell(atRow row: Int, column: Int) -> Cell? {
         
-        guard row >= 0 else { return Cell() }
-        
         guard
-            (0..<rowCount).contains(row) &&
-            (0..<columnCount).contains(column) else { return nil }
+            (0..<columnCount).contains(column),
+            row < rowCount else { return nil }
+        
+        if row < 0 {
+            return Cell()
+        }
         
         return cells[row][column]
     }
