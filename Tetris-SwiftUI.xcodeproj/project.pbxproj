@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86A24A323F0088B00A56191 /* BoardTests.swift */; };
+		E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */; };
 		E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */; };
 		E8BD3E6523E3FA3200B2CEA1 /* Tetromino.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */; };
 		E8FAD03723DE5A700097C050 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD03623DE5A700097C050 /* AppDelegate.swift */; };
@@ -15,7 +17,7 @@
 		E8FAD03D23DE5A710097C050 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8FAD03C23DE5A710097C050 /* Assets.xcassets */; };
 		E8FAD04023DE5A710097C050 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E8FAD03F23DE5A710097C050 /* Preview Assets.xcassets */; };
 		E8FAD04323DE5A710097C050 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E8FAD04123DE5A710097C050 /* LaunchScreen.storyboard */; };
-		E8FAD04E23DE5A710097C050 /* TetrimonoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD04D23DE5A710097C050 /* TetrimonoTests.swift */; };
+		E8FAD04E23DE5A710097C050 /* TetrominoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD04D23DE5A710097C050 /* TetrominoTests.swift */; };
 		E8FAD05923DE5A710097C050 /* Tetris_SwiftUIUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD05823DE5A710097C050 /* Tetris_SwiftUIUITests.swift */; };
 		E8FAD06B23E005F80097C050 /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD06A23E005F80097C050 /* Cell.swift */; };
 		E8FAD06D23E0079E0097C050 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD06C23E0079E0097C050 /* Board.swift */; };
@@ -41,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E86A24A323F0088B00A56191 /* BoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTests.swift; sourceTree = "<group>"; };
+		E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManagerTests.swift; sourceTree = "<group>"; };
 		E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
 		E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tetromino.swift; sourceTree = "<group>"; };
 		E8FAD03323DE5A700097C050 /* Tetris-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tetris-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,7 +56,7 @@
 		E8FAD04223DE5A710097C050 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E8FAD04423DE5A710097C050 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E8FAD04923DE5A710097C050 /* Tetris-SwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tetris-SwiftUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E8FAD04D23DE5A710097C050 /* TetrimonoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrimonoTests.swift; sourceTree = "<group>"; };
+		E8FAD04D23DE5A710097C050 /* TetrominoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrominoTests.swift; sourceTree = "<group>"; };
 		E8FAD04F23DE5A710097C050 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E8FAD05423DE5A710097C050 /* Tetris-SwiftUIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Tetris-SwiftUIUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8FAD05823DE5A710097C050 /* Tetris_SwiftUIUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tetris_SwiftUIUITests.swift; sourceTree = "<group>"; };
@@ -139,8 +143,10 @@
 		E8FAD04C23DE5A710097C050 /* Tetris-SwiftUITests */ = {
 			isa = PBXGroup;
 			children = (
-				E8FAD04D23DE5A710097C050 /* TetrimonoTests.swift */,
+				E8FAD04D23DE5A710097C050 /* TetrominoTests.swift */,
 				E8FAD04F23DE5A710097C050 /* Info.plist */,
+				E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */,
+				E86A24A323F0088B00A56191 /* BoardTests.swift */,
 			);
 			path = "Tetris-SwiftUITests";
 			sourceTree = "<group>";
@@ -301,7 +307,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E8FAD04E23DE5A710097C050 /* TetrimonoTests.swift in Sources */,
+				E8FAD04E23DE5A710097C050 /* TetrominoTests.swift in Sources */,
+				E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */,
+				E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

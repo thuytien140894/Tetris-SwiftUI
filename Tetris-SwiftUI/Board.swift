@@ -49,4 +49,11 @@ struct Board {
         
         return cells[row][column]
     }
+    
+    func clear() {
+        
+        cells.forEach {
+            $0.forEach { $0.isOpen = true }
+        }
+    }
 }

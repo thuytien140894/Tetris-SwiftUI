@@ -10,7 +10,7 @@ import SwiftUI
 
 struct GameView: View {
     
-    private var gameManager = GameManager()
+    @State private var gameManager: GameManager?
     @State private var board = Board()
     @State private var cellWidth: CGFloat = 0
     
@@ -27,7 +27,9 @@ struct GameView: View {
         board = makeBoard(width: size.width, height: size.height)
         cellWidth = size.width / CGFloat(board.columnCount)
         
-        gameManager.startGame(for: board)
+        let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        gameManager = GameManager(board: $board, eventTrigger: timer.eraseToAnyPublisher())
+        gameManager?.startGame()
     }
     
     private func makeBoard(width: CGFloat, height: CGFloat) -> Board {

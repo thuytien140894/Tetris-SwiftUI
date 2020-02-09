@@ -8,6 +8,7 @@
 
 import XCTest
 import SwiftUI
+
 @testable import Tetris_SwiftUI
 
 class TetrominoTests: XCTestCase {
@@ -61,7 +62,7 @@ class TetrominoTests: XCTestCase {
     
     func testTetrominoCoordinates() {
         
-        var tetromino = Tetromino(type: .l, orientation: .two, color: Color.red)
+        let tetromino = Tetromino(type: .l, orientation: .two, color: Color.red)
         
         var expectedCoordinates = [(1, -1), (1, -2), (1, -3), (0, -3)]
         for (coordinate, expectedCoordinate) in zip(tetromino.coordinates, expectedCoordinates) {

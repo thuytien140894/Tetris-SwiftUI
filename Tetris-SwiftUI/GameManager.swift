@@ -11,24 +11,26 @@ import Combine
 
 class GameManager {
     
-    private var tetromino = Tetromino()
-    private var board = Board()
-    private let timerPublisher = Timer.publish(every: 1, on: .main, in: .common)
+    @Binding private var board: Board
+    
+    private let eventTrigger: AnyPublisher<Date, Never>
+    
+    private lazy var tetromino = {
+        makeTetromino()
+    }()
+    
     private var cancellableSet = Set<AnyCancellable>()
-
-    func startGame(for board: Board) {
+    
+    init(board: Binding<Board>, eventTrigger: AnyPublisher<Date, Never>) {
         
-        self.board = board
-        tetromino = makeTetromino()
-
-        startTimer()
+        self._board = board
+        self.eventTrigger = eventTrigger
     }
     
-    private func startTimer() {
+    func startGame() {
         
-        timerPublisher
-            .autoconnect()
-            .receive(on: RunLoop.main)
+        eventTrigger
+            .receiveOnMainThreadIfPossible()
             .sink { [weak self] _ in
                 self?.dropTetromino()
             }
@@ -48,10 +50,10 @@ class GameManager {
         tetromino.xPosition = Int.random(in: 0..<availableSpace)
         
         tetromino.$coordinates
-            .receive(on: RunLoop.main)
+            .receiveOnMainThreadIfPossible()
             .sink { [weak self] in
                 guard let self = self else { return }
-                self.highlightBoard(at: $0, color: self.tetromino.color)
+                self.highlightBoard(at: $0, color: tetromino.color)
             }
             .store(in: &cancellableSet)
         
@@ -64,11 +66,9 @@ class GameManager {
             (coordinate.x, coordinate.y + 1)
         }
         
-        if canMoveTetromino(to: newCoordinates) {
-            dehighlightBoard(at: tetromino.coordinates)
-            tetromino.coordinates = newCoordinates
-        } else {
-            tetromino = makeTetromino()
+        updateTetrominoPosition(to: newCoordinates) { [weak self] in
+            guard let self = self else { return }
+            self.tetromino = self.makeTetromino()
         }
     }
     
@@ -105,9 +105,54 @@ class GameManager {
         }
     }
     
-    func moveTetrominoRight() {}
+    func moveTetrominoRight() {
+        
+        let newCoordinates = tetromino.coordinates.map { coordinate in
+            (coordinate.x + 1, coordinate.y)
+        }
+        
+        updateTetrominoPosition(to: newCoordinates)
+    }
     
-    func moveTetrominoLeft() {}
+    func moveTetrominoLeft() {
+        
+        let newCoordinates = tetromino.coordinates.map { coordinate in
+            (coordinate.x - 1, coordinate.y)
+        }
+        
+        updateTetrominoPosition(to: newCoordinates)
+    }
     
     func rotateTetromino() {}
+    
+    private func updateTetrominoPosition(to coordinates: [Coordinate], failureHandler: (() -> Void)? = nil) {
+        
+        guard canMoveTetromino(to: coordinates) else {
+            failureHandler?()
+            return
+        }
+        
+        dehighlightBoard(at: tetromino.coordinates)
+        tetromino.coordinates = coordinates
+    }
+    
+    func reset() {
+        
+        board.clear()
+    }
+}
+
+extension Publisher {
+    
+    /// Returns a publisher that delivers elements on the main UI thread if
+    /// the app is not running tests.
+    func receiveOnMainThreadIfPossible() -> AnyPublisher<Self.Output, Self.Failure> {
+        
+        let isUnitTesting = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        guard !isUnitTesting else {
+            return eraseToAnyPublisher()
+        }
+        
+        return receive(on: RunLoop.main).eraseToAnyPublisher()
+    }
 }
