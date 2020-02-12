@@ -24,49 +24,67 @@ enum TetrominoType: CaseIterable {
         }
     }
     
-    /// Coordinates are located around the origin (0, 0) for
-    /// correct rotation.
+    /// Coordinates are used to index the board and modify
+    /// its cells' states, and so our coordinate system inverts
+    /// the y axis. Initial coordinates for each tetromino
+    /// place it outside the board, specifically one row above the
+    /// first row so that the tetromino can start descending into
+    /// view.
     var coordinates: [Coordinate] {
         switch self {
         case .i:
-            return [(-1, 0), (0, 0), (1, 0), (2, 0)]
+            return [(0, -1), (1, -1), (2, -1), (3, -1)]
         case .o:
-            return [(0, 1), (0, 0), (1, 0), (1, 1)]
+            return [(0, -2), (0, -1), (1, -1), (1, -2)]
         case .t:
-            return [(-1, 0), (0, 0), (1, 0), (0, 1)]
+            return [(0, -1), (1, -1), (2, -1), (1, -2)]
         case .j:
-            return [(1, 0), (0, 0), (-1, 0), (-1, 1)]
+            return [(2, -1), (1, -1), (0, -1), (0, -2)]
         case .l:
-            return [(-1, 0), (0, 0), (1, 0), (1, 1)]
+            return [(0, -1), (1, -1), (2, -1), (2, -2)]
         case .s:
-            return [(-1, 0), (0, 0), (0, 1), (1, 1)]
+            return [(0, -1), (1, -1), (1, -2), (2, -2)]
         case .z:
-            return [(1, 0), (0, 0), (0, 1), (-1, 1)]
+            return [(2, -1), (1, -1), (1, -2), (0, -2)]
         }
     }
 }
 
+/// According to our coordinate system, the y axis is inverted.
+/// As a result, rotating by 90 degrees means rotating by 270
+/// degrees and vice versa.
 enum Orientation: Double, CaseIterable {
     case one = 0
-    case two = 90
+    case two = 270
     case three = 180
-    case four = 270
+    case four = 90
     
     func width(fromDimension dimension: (width: Int, height: Int)) -> Int {
         
         switch self {
         case .one, .three:
-            return dimension.1
-        case .two, .four:
             return dimension.0
+        case .two, .four:
+            return dimension.1
         }
     }
     
+    /// Returns a new set of coordinates by rotating its original set
+    /// according to the current orientation. The input coordinates
+    /// are first adjusted to the origin by the "middle" coordinate,
+    /// and then adjusted back to its original position after rotation.
     func rotate(coordinates: [Coordinate]) -> [Coordinate] {
+        
+        guard coordinates.count > 0 else { return [] }
+        
+        let pivotPosition = Int(ceil(Double(coordinates.count) / 2))
+        let adjustedCoordinates = adjustCoordinatesToOrigin(coordinates, pivot: coordinates[pivotPosition - 1])
+        let xTheta = coordinates[0].x - adjustedCoordinates[0].x
+        let yTheta = coordinates[0].y - adjustedCoordinates[0].y
         
         let pi = rawValue * Double.pi / 180
         
-        let rotatedCoordinates: [Coordinate] = coordinates.map { coordinate in
+        let rotatedCoordinates: [Coordinate] = adjustedCoordinates.map { coordinate in
             let x = Double(coordinate.x)
             let y = Double(coordinate.y)
             let cosTheta = cos(pi).rounded()
@@ -74,10 +92,31 @@ enum Orientation: Double, CaseIterable {
             let rotatedX = x * cosTheta - y * sinTheta
             let rotatedY = x * sinTheta + y * cosTheta
             
-            return (Int(rotatedX), Int(rotatedY))
+            return (Int(rotatedX) + xTheta, Int(rotatedY) + yTheta)
         }
         
         return rotatedCoordinates
+    }
+    
+    private func adjustCoordinatesToOrigin(_ coordinates: [Coordinate], pivot coordinate: Coordinate) -> [Coordinate] {
+        
+        let xTheta = 0 - coordinate.x
+        let yTheta = 0 - coordinate.y
+        
+        let adjustedCoordinates = coordinates.map { coordinate in
+            (coordinate.x + xTheta, coordinate.y + yTheta)
+        }
+        
+        return adjustedCoordinates
+    }
+    
+    func next() -> Self {
+        
+        let allOrientations = Orientation.allCases
+        let currentOrientation = allOrientations.firstIndex(of: self)
+        let nextOrientation = allOrientations.index(after: currentOrientation ?? 0)
+        
+        return allOrientations[nextOrientation % allOrientations.count]
     }
 }
 
@@ -119,10 +158,8 @@ class Tetromino: ObservableObject {
     /// When a tetromino first appears on the board, its cells
     /// should be above the first row so that it can descend into
     /// view later. As a result, we adjust the y values to be
-    /// less than 0. Also, since tetromino coordinates are located
-    /// around the origin, x values can be negative, which are
-    /// invalid for board indexing. We want to adjust these x values
-    /// to be greater than or equal to 0.
+    /// less than 0. x values can also be negative after rotation
+    /// and so are adjusted to be greater than or equal to 0.
     private func makeInitialCoordinates() -> [Coordinate] {
         
         let originalCoordinates = orientation.rotate(coordinates: type.coordinates)
@@ -134,20 +171,16 @@ class Tetromino: ObservableObject {
                 adjustedXTheta = coordinate.x
             }
             
-            if coordinate.y < adjustedYTheta {
+            if coordinate.y > adjustedYTheta {
                 adjustedYTheta = coordinate.y
             }
         }
         
         adjustedXTheta = abs(adjustedXTheta)
-        adjustedYTheta = abs(adjustedYTheta) + 1
+        adjustedYTheta = adjustedYTheta + 1
         
-        /// We treat the board's row numbers as y values. Tetromino
-        /// coordinates follow the traditional y-axis where positive
-        /// y values are upward. Therefore, we invert the y coordinates
-        /// to match the board's "coordinate" system.
         let adjustedCoordinates = originalCoordinates.map { coordinate in
-            (coordinate.x + adjustedXTheta, -(coordinate.y + adjustedYTheta))
+            (coordinate.x + adjustedXTheta, coordinate.y - adjustedYTheta)
         }
         
         return adjustedCoordinates

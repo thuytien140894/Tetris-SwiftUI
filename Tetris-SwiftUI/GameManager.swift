@@ -72,22 +72,6 @@ class GameManager {
         }
     }
     
-    private func canMoveTetromino(to coordinates: [Coordinate]) -> Bool {
-        
-        let newCoordinates = coordinates.filter { !tetromino.contains(coordinate: $0) }
-        
-        for coordinate in newCoordinates {
-            guard
-                let cell = board.cell(atRow: coordinate.y, column: coordinate.x),
-                cell.isOpen else {
-                    
-                    return false
-            }
-        }
-        
-        return true
-    }
-    
     private func dehighlightBoard(at coordinates: [Coordinate]) {
         
         coordinates.forEach { coordinate in
@@ -123,7 +107,13 @@ class GameManager {
         updateTetrominoPosition(to: newCoordinates)
     }
     
-    func rotateTetromino() {}
+    func rotateTetromino() {
+        
+        let newOrientation = tetromino.orientation.next()
+        let newCoordinates = newOrientation.rotate(coordinates: tetromino.coordinates)
+        
+        updateTetrominoPosition(to: newCoordinates)
+    }
     
     private func updateTetrominoPosition(to coordinates: [Coordinate], failureHandler: (() -> Void)? = nil) {
         
@@ -134,6 +124,22 @@ class GameManager {
         
         dehighlightBoard(at: tetromino.coordinates)
         tetromino.coordinates = coordinates
+    }
+    
+    private func canMoveTetromino(to coordinates: [Coordinate]) -> Bool {
+        
+        let newCoordinates = coordinates.filter { !tetromino.contains(coordinate: $0) }
+        
+        for coordinate in newCoordinates {
+            guard
+                let cell = board.cell(atRow: coordinate.y, column: coordinate.x),
+                cell.isOpen else {
+                    
+                    return false
+            }
+        }
+        
+        return true
     }
     
     func reset() {
