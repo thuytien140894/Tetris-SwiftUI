@@ -186,9 +186,18 @@ class Tetromino: ObservableObject {
         return adjustedCoordinates
     }
     
-    func contains(coordinate: Coordinate) -> Bool {
+    static func compare(coordinates: [Coordinate], anotherCoordinates: [Coordinate]) -> Bool {
         
-        let matchedCoordinate = coordinates.first(where: { $0 == coordinate })
-        return matchedCoordinate != nil
+        guard coordinates.count == anotherCoordinates.count else {
+            return false
+        }
+        
+        for (coordinate, anotherCoordinate) in zip(coordinates, anotherCoordinates) {
+            if coordinate != anotherCoordinate {
+                return false
+            }
+        }
+        
+        return true
     }
 }

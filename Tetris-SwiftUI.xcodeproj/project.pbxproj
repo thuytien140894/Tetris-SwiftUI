@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82CF57523FA1BD50064007D /* GameControllerTests.swift */; };
+		E8598B5223F3DDEF0051EBDC /* GameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8598B5123F3DDEF0051EBDC /* GameController.swift */; };
 		E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86A24A323F0088B00A56191 /* BoardTests.swift */; };
 		E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */; };
 		E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */; };
@@ -43,6 +45,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E82CF57523FA1BD50064007D /* GameControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControllerTests.swift; sourceTree = "<group>"; };
+		E8598B5123F3DDEF0051EBDC /* GameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameController.swift; sourceTree = "<group>"; };
 		E86A24A323F0088B00A56191 /* BoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTests.swift; sourceTree = "<group>"; };
 		E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManagerTests.swift; sourceTree = "<group>"; };
 		E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
@@ -128,6 +132,7 @@
 				E8FAD07223E2AB840097C050 /* CellView.swift */,
 				E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */,
 				E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */,
+				E8598B5123F3DDEF0051EBDC /* GameController.swift */,
 			);
 			path = "Tetris-SwiftUI";
 			sourceTree = "<group>";
@@ -147,6 +152,7 @@
 				E8FAD04F23DE5A710097C050 /* Info.plist */,
 				E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */,
 				E86A24A323F0088B00A56191 /* BoardTests.swift */,
+				E82CF57523FA1BD50064007D /* GameControllerTests.swift */,
 			);
 			path = "Tetris-SwiftUITests";
 			sourceTree = "<group>";
@@ -292,6 +298,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E8FAD03723DE5A700097C050 /* AppDelegate.swift in Sources */,
+				E8598B5223F3DDEF0051EBDC /* GameController.swift in Sources */,
 				E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */,
 				E8BD3E6523E3FA3200B2CEA1 /* Tetromino.swift in Sources */,
 				E8FAD06B23E005F80097C050 /* Cell.swift in Sources */,
@@ -308,6 +315,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E8FAD04E23DE5A710097C050 /* TetrominoTests.swift in Sources */,
+				E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */,
 				E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */,
 				E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */,
 			);

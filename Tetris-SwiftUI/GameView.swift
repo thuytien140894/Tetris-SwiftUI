@@ -28,8 +28,23 @@ struct GameView: View {
         cellWidth = size.width / CGFloat(board.columnCount)
         
         let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-        gameManager = GameManager(board: $board, eventTrigger: timer.eraseToAnyPublisher())
+        gameManager = GameManager(board: $board, eventTrigger: timer.eraseToAnyPublisher(), tetrominoGenerator: generateTetromino)
         gameManager?.startGame()
+    }
+    
+    private func generateTetromino() -> Tetromino {
+        
+        let type = TetrominoType.allCases.randomElement() ?? .i
+        let orientation = Orientation.allCases.randomElement() ?? .one
+        let color = Color(red: Double.random(in: 0.2...1),
+                          green: Double.random(in: 0.2...1),
+                          blue: Double.random(in: 0.2...1))
+        
+        let tetromino = Tetromino(type: type, orientation: orientation, color: color)
+        let availableSpace = self.board.columnCount - tetromino.width
+        tetromino.xPosition = Int.random(in: 0..<availableSpace)
+        
+        return tetromino
     }
     
     private func makeBoard(width: CGFloat, height: CGFloat) -> Board {

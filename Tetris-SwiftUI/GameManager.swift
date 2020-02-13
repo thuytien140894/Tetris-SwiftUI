@@ -14,40 +14,80 @@ class GameManager {
     @Binding private var board: Board
     
     private let eventTrigger: AnyPublisher<Date, Never>
-    
-    private lazy var tetromino = {
-        makeTetromino()
+    private let tetrominoGenerator: () -> Tetromino
+    private lazy var gameController = {
+        makeGameController()
     }()
+    
+    private var tetromino = Tetromino()
     
     private var cancellableSet = Set<AnyCancellable>()
     
-    init(board: Binding<Board>, eventTrigger: AnyPublisher<Date, Never>) {
+    init(board: Binding<Board>, eventTrigger: AnyPublisher<Date, Never>, tetrominoGenerator: @escaping () -> Tetromino) {
         
         self._board = board
         self.eventTrigger = eventTrigger
+        self.tetrominoGenerator = tetrominoGenerator
     }
     
     func startGame() {
         
+        tetromino = makeTetromino()
+        
         eventTrigger
             .receiveOnMainThreadIfPossible()
             .sink { [weak self] _ in
-                self?.dropTetromino()
+                guard let self = self else { return }
+                self.dropTetromino()
             }
             .store(in: &cancellableSet)
     }
     
+    private func dropTetromino() {
+        
+        gameController.drop(coordinates: tetromino.coordinates)
+    }
+    
+    private func makeGameController() -> GameController {
+        
+        let subject = PassthroughSubject<MovementResult, Never>()
+        subject
+            .receiveOnMainThreadIfPossible()
+            .sink { [weak self] result in
+                guard let self = self else { return }
+                switch result {
+                case .new(let coordinates):
+                    self.updateTetrominoPosition(to: coordinates)
+                case .done:
+                    self.tetromino = self.makeTetromino()
+                default:
+                    return
+                }
+            }
+            .store(in: &cancellableSet)
+        
+        return GameController(subject: subject, movementValidator: areAvailable(coordinates:))
+    }
+    
+    private func updateTetrominoPosition(to coordinates: [Coordinate]) {
+        
+        guard coordinates.count > 0 else { return }
+        
+        dehighlightBoard(at: tetromino.coordinates)
+        tetromino.coordinates = coordinates
+    }
+    
+    private func dehighlightBoard(at coordinates: [Coordinate]) {
+        
+        coordinates.forEach { coordinate in
+            let cell = board.cell(atRow: coordinate.y, column: coordinate.x)
+            cell?.isOpen = true
+        }
+    }
+    
     private func makeTetromino() -> Tetromino {
         
-        let type = TetrominoType.allCases.randomElement() ?? .i
-        let orientation = Orientation.allCases.randomElement() ?? .one
-        let color = Color(red: Double.random(in: 0.2...1),
-                          green: Double.random(in: 0.2...1),
-                          blue: Double.random(in: 0.2...1))
-        
-        let tetromino = Tetromino(type: type, orientation: orientation, color: color)
-        let availableSpace = board.columnCount - tetromino.width
-        tetromino.xPosition = Int.random(in: 0..<availableSpace)
+        let tetromino = tetrominoGenerator()
         
         tetromino.$coordinates
             .receiveOnMainThreadIfPossible()
@@ -60,26 +100,6 @@ class GameManager {
         return tetromino
     }
     
-    private func dropTetromino() {
-    
-        let newCoordinates = tetromino.coordinates.map { coordinate in
-            (coordinate.x, coordinate.y + 1)
-        }
-        
-        updateTetrominoPosition(to: newCoordinates) { [weak self] in
-            guard let self = self else { return }
-            self.tetromino = self.makeTetromino()
-        }
-    }
-    
-    private func dehighlightBoard(at coordinates: [Coordinate]) {
-        
-        coordinates.forEach { coordinate in
-            let cell = board.cell(atRow: coordinate.y, column: coordinate.x)
-            cell?.isOpen = true
-        }
-    }
-    
     private func highlightBoard(at coordinates: [Coordinate], color: Color) {
         
         coordinates.forEach { coordinate in
@@ -89,48 +109,9 @@ class GameManager {
         }
     }
     
-    func moveTetrominoRight() {
+    private func areAvailable(coordinates: [Coordinate]) -> Bool {
         
-        let newCoordinates = tetromino.coordinates.map { coordinate in
-            (coordinate.x + 1, coordinate.y)
-        }
-        
-        updateTetrominoPosition(to: newCoordinates)
-    }
-    
-    func moveTetrominoLeft() {
-        
-        let newCoordinates = tetromino.coordinates.map { coordinate in
-            (coordinate.x - 1, coordinate.y)
-        }
-        
-        updateTetrominoPosition(to: newCoordinates)
-    }
-    
-    func rotateTetromino() {
-        
-        let newOrientation = tetromino.orientation.next()
-        let newCoordinates = newOrientation.rotate(coordinates: tetromino.coordinates)
-        
-        updateTetrominoPosition(to: newCoordinates)
-    }
-    
-    private func updateTetrominoPosition(to coordinates: [Coordinate], failureHandler: (() -> Void)? = nil) {
-        
-        guard canMoveTetromino(to: coordinates) else {
-            failureHandler?()
-            return
-        }
-        
-        dehighlightBoard(at: tetromino.coordinates)
-        tetromino.coordinates = coordinates
-    }
-    
-    private func canMoveTetromino(to coordinates: [Coordinate]) -> Bool {
-        
-        let newCoordinates = coordinates.filter { !tetromino.contains(coordinate: $0) }
-        
-        for coordinate in newCoordinates {
+        for coordinate in coordinates {
             guard
                 let cell = board.cell(atRow: coordinate.y, column: coordinate.x),
                 cell.isOpen else {
@@ -142,9 +123,29 @@ class GameManager {
         return true
     }
     
+    func moveTetrominoRight() {
+        
+        gameController.moveRight(coordinates: tetromino.coordinates)
+    }
+    
+    func moveTetrominoLeft() {
+        
+        gameController.moveLeft(coordinates: tetromino.coordinates)
+    }
+    
+    func rotateTetromino() {
+        
+        gameController.rotate(coordinates: tetromino.coordinates, to: tetromino.orientation.next())
+    }
+    
     func reset() {
         
         board.clear()
+    }
+
+    func stopGame() {
+        
+        cancellableSet.forEach { $0.cancel() }
     }
 }
 

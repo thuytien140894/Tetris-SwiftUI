@@ -14,8 +14,9 @@ import SwiftUI
 
 class GameManagerTests: XCTestCase {
     
-    private var board = Board(rowCount: 5, columnCount: 5)
+    private var board = Board(rowCount: 4, columnCount: 4)
     private let mockTimer = PassthroughSubject<Date, Never>()
+    private let tetromino = Tetromino(type: .o, orientation: .one, color: .white)
     
     private lazy var gameManager: GameManager = {
         let boardBinding = Binding(
@@ -26,88 +27,122 @@ class GameManagerTests: XCTestCase {
                 self?.board = $0
             }
         )
-        return GameManager(board: boardBinding, eventTrigger: mockTimer.eraseToAnyPublisher())
+        
+        let tetrominoGenerator = { [weak self] in
+            self?.tetromino ?? Tetromino()
+        }
+        return GameManager(board: boardBinding, eventTrigger: mockTimer.eraseToAnyPublisher(), tetrominoGenerator: tetrominoGenerator)
     }()
     
     override func setUp() {
         
         super.setUp()
         
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        
         gameManager.reset()
-        gameManager.startGame()
+        gameManager.stopGame()
+    }
     
-        /// The tallest tetromino has an i shape and a
-        /// vertical orientation. Therefore we drop the
-        /// tetromino four times to make sure that any
-        /// random tetromino would be entirely visible
-        /// in the board.
-        for _ in (0..<4) {
-            mockTimer.send(Date())
-        }
+    func testChangingTetrominoCoordinatesUpdatesBoard() throws {
+        
+        gameManager.startGame()
+        tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
+        
+        try assertCells(areOpen: false, at: tetromino.coordinates)
     }
     
     func testDroppingTetromino() throws {
+
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        gameManager.startGame()
         
-        var cellIndices = highlightedCellIndices()
-        XCTAssertFalse(cellIndices.isEmpty, "Board should highlight some cells.")
+        /// Sends a value through the timer to prompt the tetromino
+        /// to drop.
+        mockTimer.send(Date())
+
+        try assertCells(areOpen: true, at: [(0, 0), (1, 0)])
+        let cellIndices = [(0, 1), (0, 2), (1, 2), (1, 1)]
+        try assertCells(areOpen: false, at: cellIndices)
+    }
+    
+    func testNewTetrominoIsGeneratedWhenDroppingFails() {
         
+        var tetrominoIsGenerated = false
+        let tetrominoGenerator: () -> Tetromino = {
+            tetrominoIsGenerated = true
+            return self.tetromino
+        }
+        let manager = GameManager(board: .constant(board), eventTrigger: mockTimer.eraseToAnyPublisher(), tetrominoGenerator: tetrominoGenerator)
+        
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        let cell = board.cell(atRow: 2, column: 0)
+        cell?.isOpen = false
+        
+        /// Starting a game generates a new tetromino; thus
+        /// we need to reset the variable before testing.
+        manager.startGame()
+        tetrominoIsGenerated = false
         mockTimer.send(Date())
         
-        cellIndices = cellIndices.map { ($0.x, $0.y + 1) }
-        try assertCellsAreNotOpen(at: cellIndices)
+        XCTAssert(tetrominoIsGenerated)
     }
-    
+
     func testMovingTetrominoLeft() throws {
-        
-        var cellIndices = highlightedCellIndices()
-        XCTAssertFalse(cellIndices.isEmpty, "Board should highlight some cells.")
+
+        tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
+        gameManager.startGame()
         
         gameManager.moveTetrominoLeft()
-        
-        let leftEdgeCells = cellIndices.filter { $0.x == 0 }
-        if leftEdgeCells.isEmpty {
-            cellIndices = cellIndices.map { ($0.x - 1, $0.y) }
-        }
-        
-        try assertCellsAreNotOpen(at: cellIndices)
+
+        try assertCells(areOpen: true, at: [(2, 0), (2, 1)])
+        let cellIndices = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        try assertCells(areOpen: false, at: cellIndices)
     }
-    
+
     func testMovingTetrominoRight() throws {
-        
-        var cellIndices = highlightedCellIndices()
-        XCTAssertFalse(cellIndices.isEmpty, "Board should highlight some cells.")
+
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        gameManager.startGame()
         
         gameManager.moveTetrominoRight()
+
+        try assertCells(areOpen: true, at: [(0, 0), (0, 1)])
+        let cellIndices = [(1, 0), (1, 1), (2, 1), (2, 0)]
+        try assertCells(areOpen: false, at: cellIndices)
+    }
+
+    func testRotatingTetromino() throws {
+
+        tetromino.coordinates = [(2, 0), (2, 1), (3, 1), (3, 0)]
+        gameManager.startGame()
         
-        let rightEdgeCells = cellIndices.filter { $0.x == board.columnCount - 1 }
-        if rightEdgeCells.isEmpty {
-            cellIndices = cellIndices.map { ($0.x + 1, $0.y) }
-        }
-        
-        try assertCellsAreNotOpen(at: cellIndices)
+        gameManager.rotateTetromino()
+
+        try assertCells(areOpen: true, at: [(3, 1), (3, 0)])
+        let cellIndices = [(1, 1), (2, 1), (2, 0), (1, 0)]
+        try assertCells(areOpen: false, at: cellIndices)
     }
     
-    func testRotatingTetromino() {}
+    func testMovingTetrominoShouldFail() throws {
+
+        let initialCoordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        tetromino.coordinates = initialCoordinates
+        let cell = board.cell(atRow: 0, column: 2)
+        cell?.isOpen = false
+        
+        gameManager.startGame()
+        gameManager.moveTetrominoRight()
+        
+        try assertCells(areOpen: true, at: [(2, 1)])
+        try assertCells(areOpen: false, at: initialCoordinates)
+    }
     
-    private func assertCellsAreNotOpen(at indices: [Coordinate]) throws {
+    private func assertCells(areOpen: Bool, at indices: [Coordinate]) throws {
         
         try indices.forEach { coordinate in
             let cell = try XCTUnwrap(board.cell(atRow: coordinate.y, column: coordinate.x), "A cell should exist.")
-            XCTAssertFalse(cell.isOpen)
+            areOpen ? XCTAssert(cell.isOpen) : XCTAssertFalse(cell.isOpen)
         }
-    }
-    
-    private func highlightedCellIndices() -> [Coordinate] {
-        
-        var indices: [Coordinate] = []
-        for (row, rowCells) in board.cells.enumerated() {
-            for (column, cell) in rowCells.enumerated() {
-                if !cell.isOpen {
-                    indices.append((column, row))
-                }
-            }
-        }
-        
-        return indices
     }
 }
