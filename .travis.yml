@@ -3,3 +3,5 @@ xcode_project: Tetris-SwiftUI.xcodeproj
 xcode_scheme: Tetris-SwiftUI
 osx_image: xcode11.3
 xcode_destination: platform=iOS Simulator,OS=13.3,name=iPhone 11 Pro
+before-install: gem install slather --no-document --quiet
+after_success: slather
