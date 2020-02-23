@@ -62,13 +62,13 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(0, 0), (0, -1)]))
+                XCTAssertEqual($0, .new([(0, -1), (0, 0)]))
             }
             .store(in: &cancellableSet)
             
         let validator: ([Coordinate]) -> Bool = { _ in true }
         let gameController = GameController(subject: subject, movementValidator: validator)
-        gameController.rotate(coordinates: [(0, 0), (1, 0)], to: .two)
+        gameController.rotate(coordinates: [(0, 0), (1, 0)], within: [(0, 0), (1, -1)])
     }
     
     func testDroppingCoordinatesFails() {
@@ -124,6 +124,6 @@ class GameControllerTests: XCTestCase {
             
         let validator: ([Coordinate]) -> Bool = { _ in false }
         let gameController = GameController(subject: subject, movementValidator: validator)
-        gameController.rotate(coordinates: [(0, 0)], to: .one)
+        gameController.rotate(coordinates: [(0, 0)])
     }
 }

@@ -135,7 +135,7 @@ class GameManager {
     
     func rotateTetromino() {
         
-        gameController.rotate(coordinates: tetromino.coordinates, to: tetromino.orientation.next())
+        gameController.rotate(coordinates: tetromino.coordinates, within: tetromino.type.enclosedRegion)
     }
     
     func reset() {

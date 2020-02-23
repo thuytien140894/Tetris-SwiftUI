@@ -58,28 +58,24 @@ struct GameController {
     func drop(coordinates: [Coordinate]) {
     
         let newCoordinates = coordinates.map { ($0.x, $0.y + 1) }
-    
         publishMovementResult(from: coordinates, to: newCoordinates, fallback: .done)
     }
     
     func moveRight(coordinates: [Coordinate]) {
         
         let newCoordinates = coordinates.map { ($0.x + 1, $0.y) }
-        
         publishMovementResult(from: coordinates, to: newCoordinates)
     }
     
     func moveLeft(coordinates: [Coordinate]) {
         
         let newCoordinates = coordinates.map { ($0.x - 1, $0.y) }
-        
         publishMovementResult(from: coordinates, to: newCoordinates)
     }
     
-    func rotate(coordinates: [Coordinate], to orientation: Orientation) {
+    func rotate(coordinates: [Coordinate], within region: [Coordinate]? = nil) {
         
-        let newCoordinates = orientation.rotate(coordinates: coordinates)
-        
+        let newCoordinates = Orientation.four.rotate(coordinates: coordinates, within: region)
         publishMovementResult(from: coordinates, to: newCoordinates)
     }
     

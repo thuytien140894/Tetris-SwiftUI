@@ -16,7 +16,7 @@ class GameManagerTests: XCTestCase {
     
     private var board = Board(rowCount: 4, columnCount: 4)
     private let mockTimer = PassthroughSubject<Date, Never>()
-    private let tetromino = Tetromino(type: .o, orientation: .one, color: .white)
+    private var tetromino = Tetromino(type: .o, orientation: .one, color: .white)
     
     private lazy var gameManager: GameManager = {
         let boardBinding = Binding(
@@ -90,6 +90,7 @@ class GameManagerTests: XCTestCase {
 
     func testMovingTetrominoLeft() throws {
 
+        
         tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
         gameManager.startGame()
         
@@ -114,13 +115,14 @@ class GameManagerTests: XCTestCase {
 
     func testRotatingTetromino() throws {
 
-        tetromino.coordinates = [(2, 0), (2, 1), (3, 1), (3, 0)]
+        tetromino = Tetromino(type: .i, orientation: .one, color: .white)
+        tetromino.coordinates = [(1, 0), (1, 1), (1, 2), (1, 3)]
         gameManager.startGame()
         
         gameManager.rotateTetromino()
 
-        try assertCells(areOpen: true, at: [(3, 1), (3, 0)])
-        let cellIndices = [(1, 1), (2, 1), (2, 0), (1, 0)]
+        try assertCells(areOpen: true, at: [(1, 0), (1, 1), (1, 3)])
+        let cellIndices = [(0, 2), (1, 2), (2, 2), (3, 2)]
         try assertCells(areOpen: false, at: cellIndices)
     }
     

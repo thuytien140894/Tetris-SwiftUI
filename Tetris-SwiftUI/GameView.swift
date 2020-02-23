@@ -18,6 +18,15 @@ struct GameView: View {
         GeometryReader { geometry in
             BoardView(board: self.$board, cellWidth: self.$cellWidth)
                 .onAppear(perform: { self.setUpBoard(size: geometry.size) })
+                .onTapGesture(perform: { self.gameManager?.rotateTetromino() })
+                .gesture(
+                    DragGesture()
+                        .onEnded { value in
+                            value.translation.width > 0
+                                ? self.gameManager?.moveTetrominoRight()
+                                : self.gameManager?.moveTetrominoLeft()
+                        }
+            )
         }
         .padding(EdgeInsets(top: 100, leading: 70, bottom: 20, trailing: 70))
     }
@@ -27,9 +36,20 @@ struct GameView: View {
         board = makeBoard(width: size.width, height: size.height)
         cellWidth = size.width / CGFloat(board.columnCount)
         
-        let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
         gameManager = GameManager(board: $board, eventTrigger: timer.eraseToAnyPublisher(), tetrominoGenerator: generateTetromino)
         gameManager?.startGame()
+    }
+    
+    private func makeBoard(width: CGFloat, height: CGFloat) -> Board {
+        
+        let columnCount = 10
+        let screenRatio = height / width
+        let estimatedRowCount = CGFloat(columnCount) * screenRatio
+        let rowCount = Int(estimatedRowCount.rounded(.down))
+        let board = Board(rowCount: rowCount, columnCount: columnCount)
+        
+        return board
     }
     
     private func generateTetromino() -> Tetromino {
@@ -45,17 +65,6 @@ struct GameView: View {
         tetromino.xPosition = Int.random(in: 0..<availableSpace)
         
         return tetromino
-    }
-    
-    private func makeBoard(width: CGFloat, height: CGFloat) -> Board {
-        
-        let columnCount = 10
-        let screenRatio = height / width
-        let estimatedRowCount = CGFloat(columnCount) * screenRatio
-        let rowCount = Int(estimatedRowCount.rounded(.down))
-        let board = Board(rowCount: rowCount, columnCount: columnCount)
-        
-        return board
     }
 }
 

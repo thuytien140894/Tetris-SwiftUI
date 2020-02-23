@@ -13,17 +13,6 @@ typealias Coordinate = (x: Int, y: Int)
 enum TetrominoType: CaseIterable {
     case i, o, t, j, l, s, z
     
-    var dimension: (width: Int, height: Int) {
-        switch self {
-        case .i:
-            return (4, 1)
-        case .o:
-            return (2, 2)
-        default:
-            return (3, 2)
-        }
-    }
-    
     /// Coordinates are used to index the board and modify
     /// its cells' states, and so our coordinate system inverts
     /// the y axis. Initial coordinates for each tetromino
@@ -48,6 +37,22 @@ enum TetrominoType: CaseIterable {
             return [(2, -1), (1, -1), (1, -2), (0, -2)]
         }
     }
+    
+    /// The specified region within which a tetromino is
+    /// enclosed regardless of its orientation. This
+    /// region is defined by the coordinates of the
+    /// two opposite corners along the ascending
+    /// diagonal axis of the region.
+    var enclosedRegion: [Coordinate] {
+        switch self {
+        case .i:
+            return [(-1, 1), (2, -2)]
+        case .o:
+            return [(0, 0), (1, -1)]
+        default:
+            return [(-1, 1), (1, -1)]
+        }
+    }
 }
 
 /// According to our coordinate system, the y axis is inverted.
@@ -59,46 +64,105 @@ enum Orientation: Double, CaseIterable {
     case three = 180
     case four = 90
     
-    func width(fromDimension dimension: (width: Int, height: Int)) -> Int {
-        
-        switch self {
-        case .one, .three:
-            return dimension.0
-        case .two, .four:
-            return dimension.1
-        }
-    }
-    
     /// Returns a new set of coordinates by rotating its original set
-    /// according to the current orientation. The input coordinates
-    /// are first adjusted to the origin by the "middle" coordinate,
-    /// and then adjusted back to its original position after rotation.
-    func rotate(coordinates: [Coordinate]) -> [Coordinate] {
+    /// by the current orientation and within an optional specified region.
+    /// The input coordinates are first adjusted to the origin by
+    /// the "middle" coordinate, then adjusted back to its original
+    /// position after rotation.
+    func rotate(coordinates: [Coordinate], within region: [Coordinate]? = nil) -> [Coordinate] {
         
-        guard coordinates.count > 0 else { return [] }
+        guard coordinates.count > 0 else {
+            return []
+        }
         
         let pivotPosition = Int(ceil(Double(coordinates.count) / 2))
-        let adjustedCoordinates = adjustCoordinatesToOrigin(coordinates, pivot: coordinates[pivotPosition - 1])
+        var adjustedCoordinates = Orientation.adjustCoordinatesToOrigin(coordinates, pivot: coordinates[pivotPosition - 1])
+        
+        /// Makes sure coordinates adjusted to the origin also lie within the
+        /// specified region before rotation.
+        if let region = region {
+            adjustedCoordinates = adjust(coordinates: adjustedCoordinates, toFitWithin: region)
+        }
         let xTheta = coordinates[0].x - adjustedCoordinates[0].x
         let yTheta = coordinates[0].y - adjustedCoordinates[0].y
         
-        let pi = rawValue * Double.pi / 180
+        var rotatedCoordinates = rotate(coordinates: adjustedCoordinates)
+        if let region = region {
+            rotatedCoordinates = adjust(coordinates: rotatedCoordinates, toFitWithin: region)
+        }
         
-        let rotatedCoordinates: [Coordinate] = adjustedCoordinates.map { coordinate in
-            let x = Double(coordinate.x)
-            let y = Double(coordinate.y)
-            let cosTheta = cos(pi).rounded()
-            let sinTheta = sin(pi).rounded()
-            let rotatedX = x * cosTheta - y * sinTheta
-            let rotatedY = x * sinTheta + y * cosTheta
-            
-            return (Int(rotatedX) + xTheta, Int(rotatedY) + yTheta)
+        rotatedCoordinates = rotatedCoordinates.map { coordinate in
+            (coordinate.x + xTheta, coordinate.y + yTheta)
         }
         
         return rotatedCoordinates
     }
     
-    private func adjustCoordinatesToOrigin(_ coordinates: [Coordinate], pivot coordinate: Coordinate) -> [Coordinate] {
+    /// Performs rotation on a set of coordinates by multiplying
+    /// each coordinate by the rotation matrix.
+    ///
+    /// [cos(theta) -sin(theta)]
+    /// [sin(theta) cos(theta) ]
+    private func rotate(coordinates: [Coordinate]) -> [Coordinate] {
+        
+        let pi = rawValue * Double.pi / 180
+        let cosTheta = cos(pi).rounded()
+        let sinTheta = sin(pi).rounded()
+        
+        let rotatedCoordinates: [Coordinate] = coordinates.map { coordinate in
+            let x = Double(coordinate.x)
+            let y = Double(coordinate.y)
+            let rotatedX = x * cosTheta - y * sinTheta
+            let rotatedY = x * sinTheta + y * cosTheta
+            
+            return (Int(rotatedX), Int(rotatedY))
+        }
+        
+        return rotatedCoordinates
+    }
+    
+    /// Adjusts a set of coordinates to fit within the specified region.
+    private func adjust(coordinates: [Coordinate], toFitWithin region: [Coordinate]) -> [Coordinate] {
+        
+        guard
+            region.count == 2,
+            let maxX = (coordinates.map { $0.x }).max(),
+            let minX = (coordinates.map { $0.x }).min(),
+            let maxY = (coordinates.map { $0.y }).max(),
+            let minY = (coordinates.map { $0.y }).min() else {
+                
+                return coordinates
+        }
+        
+        let minXThreshold = region[0].x
+        let maxXThreshold = region[1].x
+        let minYThreshold = region[1].y
+        let maxYThreshold = region[0].y
+        
+        let xRange = minXThreshold...maxXThreshold
+        var xOffset = 0
+        if !xRange.contains(minX) {
+            xOffset = minXThreshold - minX
+        } else if !xRange.contains(maxX) {
+            xOffset = maxXThreshold - maxX
+        }
+        
+        let yRange = minYThreshold...maxYThreshold
+        var yOffset = 0
+        if !yRange.contains(minY) {
+            yOffset = minYThreshold - minY
+        } else if !yRange.contains(maxY) {
+            yOffset = maxYThreshold - maxY
+        }
+        
+        let adjustedCoordinates = coordinates.map { coordinate in
+            (coordinate.x + xOffset, coordinate.y + yOffset)
+        }
+        
+        return adjustedCoordinates
+    }
+    
+    static func adjustCoordinatesToOrigin(_ coordinates: [Coordinate], pivot coordinate: Coordinate) -> [Coordinate] {
         
         let xTheta = 0 - coordinate.x
         let yTheta = 0 - coordinate.y
@@ -108,15 +172,6 @@ enum Orientation: Double, CaseIterable {
         }
         
         return adjustedCoordinates
-    }
-    
-    func next() -> Self {
-        
-        let allOrientations = Orientation.allCases
-        let currentOrientation = allOrientations.firstIndex(of: self)
-        let nextOrientation = allOrientations.index(after: currentOrientation ?? 0)
-        
-        return allOrientations[nextOrientation % allOrientations.count]
     }
 }
 
@@ -139,6 +194,7 @@ class Tetromino: ObservableObject {
         self.orientation = orientation
         self.color = color
         
+        coordinates = type.coordinates
         coordinates = makeInitialCoordinates()
     }
     
@@ -151,36 +207,31 @@ class Tetromino: ObservableObject {
     }
     
     var width: Int {
-        let dimension = type.dimension
-        return orientation.width(fromDimension: dimension)
+        guard
+            let maxX = (coordinates.map { $0.x }).max(),
+            let minX = (coordinates.map { $0.x }).min() else {
+                return 0
+        }
+        
+        return maxX - minX + 1
     }
     
     /// When a tetromino first appears on the board, its cells
     /// should be above the first row so that it can descend into
     /// view later. As a result, we adjust the y values to be
-    /// less than 0. x values can also be negative after rotation
-    /// and so are adjusted to be greater than or equal to 0.
+    /// less than 0. X values should always be positive, regardless
+    /// of rotation.
     private func makeInitialCoordinates() -> [Coordinate] {
         
-        let originalCoordinates = orientation.rotate(coordinates: type.coordinates)
-        var adjustedXTheta = 0
-        var adjustedYTheta = 0
+        let originalCoordinates = orientation.rotate(coordinates: type.coordinates, within: type.enclosedRegion)
         
-        originalCoordinates.forEach { coordinate in
-            if coordinate.x < adjustedXTheta {
-                adjustedXTheta = coordinate.x
-            }
-            
-            if coordinate.y > adjustedYTheta {
-                adjustedYTheta = coordinate.y
-            }
+        var adjustedYTheta = 0
+        if let maxY = (originalCoordinates.map { $0.y }).max() {
+            adjustedYTheta = maxY + 1
         }
         
-        adjustedXTheta = abs(adjustedXTheta)
-        adjustedYTheta = adjustedYTheta + 1
-        
         let adjustedCoordinates = originalCoordinates.map { coordinate in
-            (coordinate.x + adjustedXTheta, coordinate.y - adjustedYTheta)
+            (coordinate.x, coordinate.y - adjustedYTheta)
         }
         
         return adjustedCoordinates
