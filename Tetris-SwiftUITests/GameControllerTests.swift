@@ -71,6 +71,66 @@ class GameControllerTests: XCTestCase {
         gameController.rotate(coordinates: [(0, 0), (1, 0)], within: [(0, 0), (1, -1)])
     }
     
+    func testFirstWallKickWhenRotating() {
+        
+        let subject = PassthroughSubject<MovementResult, Never>()
+        subject
+            .sink {
+                XCTAssertEqual($0, .new([(-1, -1), (-1, 0)]))
+            }
+            .store(in: &cancellableSet)
+            
+        let desiredValue = 2
+        var counter = 0
+        let validator: ([Coordinate]) -> Bool = { _ in
+            counter += 1
+            return counter == desiredValue
+        }
+        
+        let gameController = GameController(subject: subject, movementValidator: validator)
+        gameController.rotate(coordinates: [(0, 0), (1, 0)], within: [(0, 0), (1, -1)])
+    }
+    
+    func testSecondWallKickWhenRotating() {
+        
+        let subject = PassthroughSubject<MovementResult, Never>()
+        subject
+            .sink {
+                XCTAssertEqual($0, .new([(-2, -1), (-2, 0)]))
+            }
+            .store(in: &cancellableSet)
+            
+        let desiredValue = 3
+        var counter = 0
+        let validator: ([Coordinate]) -> Bool = { _ in
+            counter += 1
+            return counter == desiredValue
+        }
+        
+        let gameController = GameController(subject: subject, movementValidator: validator)
+        gameController.rotate(coordinates: [(0, 0), (1, 0)], within: [(0, 0), (1, -1)])
+    }
+    
+    func testThirdWallKickWhenRotating() {
+        
+        let subject = PassthroughSubject<MovementResult, Never>()
+        subject
+            .sink {
+                XCTAssertEqual($0, .new([(1, -1), (1, 0)]))
+            }
+            .store(in: &cancellableSet)
+            
+        let desiredValue = 4
+        var counter = 0
+        let validator: ([Coordinate]) -> Bool = { _ in
+            counter += 1
+            return counter == desiredValue
+        }
+        
+        let gameController = GameController(subject: subject, movementValidator: validator)
+        gameController.rotate(coordinates: [(0, 0), (1, 0)], within: [(0, 0), (1, -1)])
+    }
+    
     func testDroppingCoordinatesFails() {
         
         let subject = PassthroughSubject<MovementResult, Never>()

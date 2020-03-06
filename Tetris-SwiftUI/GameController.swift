@@ -58,36 +58,47 @@ struct GameController {
     func drop(coordinates: [Coordinate]) {
     
         let newCoordinates = coordinates.map { ($0.x, $0.y + 1) }
-        publishMovementResult(from: coordinates, to: newCoordinates, fallback: .done)
+        publishMovementResult(from: coordinates, to: [newCoordinates], fallback: .done)
     }
     
     func moveRight(coordinates: [Coordinate]) {
         
         let newCoordinates = coordinates.map { ($0.x + 1, $0.y) }
-        publishMovementResult(from: coordinates, to: newCoordinates)
+        publishMovementResult(from: coordinates, to: [newCoordinates])
     }
     
     func moveLeft(coordinates: [Coordinate]) {
         
         let newCoordinates = coordinates.map { ($0.x - 1, $0.y) }
-        publishMovementResult(from: coordinates, to: newCoordinates)
+        publishMovementResult(from: coordinates, to: [newCoordinates])
     }
     
     func rotate(coordinates: [Coordinate], within region: [Coordinate]? = nil) {
         
-        let newCoordinates = Orientation.four.rotate(coordinates: coordinates, within: region)
-        publishMovementResult(from: coordinates, to: newCoordinates)
+        let firstOption = coordinates
+        let secondOption = coordinates.map { ($0.x - 1, $0.y) }
+        let thirdOption = coordinates.map { ($0.x - 2, $0.y) }
+        let fourthOption = coordinates.map { ($0.x + 1, $0.y) }
+        
+        let coordinatesOptions = [firstOption, secondOption, thirdOption, fourthOption].map {
+            Orientation.four.rotate(coordinates: $0, within: region)
+        }
+        publishMovementResult(from: coordinates, to: coordinatesOptions)
     }
     
-    private func publishMovementResult(from oldCoordinates: [Coordinate], to newCoordinates: [Coordinate], fallback: MovementResult = .notPossible) {
+    private func publishMovementResult(from oldCoordinates: [Coordinate], to newCoordinateOptions: [[Coordinate]], fallback: MovementResult = .notPossible) {
         
         let isOverlapped: (Coordinate) -> Bool = { coordinate in
             let matchedCoordinate = oldCoordinates.first(where: { $0 == coordinate })
             return matchedCoordinate != nil
         }
-        let filteredCoordinates = newCoordinates.filter { !isOverlapped($0) }
         
-        if movementValidator(filteredCoordinates) {
+        let newCoordinates = newCoordinateOptions.first { coordinates in
+            let filteredCoordinates = coordinates.filter { !isOverlapped($0) }
+            return movementValidator(filteredCoordinates)
+        }
+        
+        if let newCoordinates = newCoordinates {
             subject.send(.new(newCoordinates))
         } else {
             subject.send(fallback)
