@@ -37,7 +37,9 @@ struct GameView: View {
         cellWidth = size.width / CGFloat(board.columnCount)
         
         let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
-        gameManager = GameManager(board: $board, eventTrigger: timer.eraseToAnyPublisher(), tetrominoGenerator: generateTetromino)
+        gameManager = GameManager(board: $board,
+                                  eventTrigger: timer.eraseToAnyPublisher(),
+                                  tetrominoGenerator: generateTetromino)
         gameManager?.startGame()
     }
     

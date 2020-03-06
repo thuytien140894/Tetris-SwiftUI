@@ -86,7 +86,9 @@ struct GameController {
         publishMovementResult(from: coordinates, to: coordinatesOptions)
     }
     
-    private func publishMovementResult(from oldCoordinates: [Coordinate], to newCoordinateOptions: [[Coordinate]], fallback: MovementResult = .notPossible) {
+    private func publishMovementResult(from oldCoordinates: [Coordinate],
+                                       to newCoordinateOptions: [[Coordinate]],
+                                       fallback: MovementResult = .notPossible) {
         
         let isOverlapped: (Coordinate) -> Bool = { coordinate in
             let matchedCoordinate = oldCoordinates.first(where: { $0 == coordinate })

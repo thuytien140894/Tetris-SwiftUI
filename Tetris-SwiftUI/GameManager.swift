@@ -23,7 +23,9 @@ class GameManager {
     
     private var cancellableSet = Set<AnyCancellable>()
     
-    init(board: Binding<Board>, eventTrigger: AnyPublisher<Date, Never>, tetrominoGenerator: @escaping () -> Tetromino) {
+    init(board: Binding<Board>,
+         eventTrigger: AnyPublisher<Date, Never>,
+         tetrominoGenerator: @escaping () -> Tetromino) {
         
         self._board = board
         self.eventTrigger = eventTrigger

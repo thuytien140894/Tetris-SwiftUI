@@ -1,0 +1,9 @@
+disabled_rules:
+  - trailing_whitespace
+type_name:
+  max_length: # warning and error
+    warning: 40
+    error: 50
+  allowed_symbols: ["_"]
+identifier_name:
+  min_length: 1

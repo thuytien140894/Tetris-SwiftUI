@@ -76,7 +76,8 @@ enum Orientation: Double, CaseIterable {
         }
         
         let pivotPosition = Int(ceil(Double(coordinates.count) / 2))
-        var adjustedCoordinates = Orientation.adjustCoordinatesToOrigin(coordinates, pivot: coordinates[pivotPosition - 1])
+        var adjustedCoordinates = Orientation.adjustCoordinatesToOrigin(coordinates,
+                                                                        pivot: coordinates[pivotPosition - 1])
         
         /// Makes sure coordinates adjusted to the origin also lie within the
         /// specified region before rotation.
@@ -243,10 +244,9 @@ class Tetromino: ObservableObject {
             return false
         }
         
-        for (coordinate, anotherCoordinate) in zip(coordinates, anotherCoordinates) {
-            if coordinate != anotherCoordinate {
+        for (coordinate, anotherCoordinate) in zip(coordinates, anotherCoordinates)
+            where coordinate != anotherCoordinate {
                 return false
-            }
         }
         
         return true

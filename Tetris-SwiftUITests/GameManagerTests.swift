@@ -31,7 +31,9 @@ class GameManagerTests: XCTestCase {
         let tetrominoGenerator = { [weak self] in
             self?.tetromino ?? Tetromino()
         }
-        return GameManager(board: boardBinding, eventTrigger: mockTimer.eraseToAnyPublisher(), tetrominoGenerator: tetrominoGenerator)
+        return GameManager(board: boardBinding,
+                           eventTrigger: mockTimer.eraseToAnyPublisher(),
+                           tetrominoGenerator: tetrominoGenerator)
     }()
     
     override func setUp() {
@@ -73,7 +75,9 @@ class GameManagerTests: XCTestCase {
             tetrominoIsGenerated = true
             return self.tetromino
         }
-        let manager = GameManager(board: .constant(board), eventTrigger: mockTimer.eraseToAnyPublisher(), tetrominoGenerator: tetrominoGenerator)
+        let manager = GameManager(board: .constant(board),
+                                  eventTrigger: mockTimer.eraseToAnyPublisher(),
+                                  tetrominoGenerator: tetrominoGenerator)
         
         tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         let cell = board.cell(atRow: 2, column: 0)
@@ -90,7 +94,6 @@ class GameManagerTests: XCTestCase {
 
     func testMovingTetrominoLeft() throws {
 
-        
         tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
         gameManager.startGame()
         
