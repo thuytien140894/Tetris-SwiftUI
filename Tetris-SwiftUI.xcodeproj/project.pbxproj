@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82CF57523FA1BD50064007D /* GameControllerTests.swift */; };
+		E83F429D24172704006FC2BA /* CellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83F429C24172704006FC2BA /* CellTests.swift */; };
 		E8598B5223F3DDEF0051EBDC /* GameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8598B5123F3DDEF0051EBDC /* GameController.swift */; };
 		E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86A24A323F0088B00A56191 /* BoardTests.swift */; };
 		E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */; };
@@ -46,6 +47,7 @@
 
 /* Begin PBXFileReference section */
 		E82CF57523FA1BD50064007D /* GameControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControllerTests.swift; sourceTree = "<group>"; };
+		E83F429C24172704006FC2BA /* CellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellTests.swift; sourceTree = "<group>"; };
 		E8598B5123F3DDEF0051EBDC /* GameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameController.swift; sourceTree = "<group>"; };
 		E86A24A323F0088B00A56191 /* BoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTests.swift; sourceTree = "<group>"; };
 		E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManagerTests.swift; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */,
 				E86A24A323F0088B00A56191 /* BoardTests.swift */,
 				E82CF57523FA1BD50064007D /* GameControllerTests.swift */,
+				E83F429C24172704006FC2BA /* CellTests.swift */,
 			);
 			path = "Tetris-SwiftUITests";
 			sourceTree = "<group>";
@@ -337,6 +340,7 @@
 			files = (
 				E8FAD04E23DE5A710097C050 /* TetrominoTests.swift in Sources */,
 				E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */,
+				E83F429D24172704006FC2BA /* CellTests.swift in Sources */,
 				E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */,
 				E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */,
 			);

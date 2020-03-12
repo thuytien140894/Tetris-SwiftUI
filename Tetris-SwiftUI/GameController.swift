@@ -9,7 +9,7 @@
 import Combine
 
 enum MovementResult {
-    case new([Coordinate])
+    case new(_ oldValue: [Coordinate], _ newValue: [Coordinate])
     case notPossible
     case done
 }
@@ -19,10 +19,12 @@ extension MovementResult: Equatable {
     static func == (lhs: MovementResult, rhs: MovementResult) -> Bool {
         
         switch lhs {
-        case .new(let coordinates):
+        case .new(let oldValue, let newValue):
             switch rhs {
-            case .new(let anotherCoordinates):
-                return Tetromino.compare(coordinates: coordinates, anotherCoordinates: anotherCoordinates)
+            case .new(let anotherOldValue, let anotherNewValue):
+                return
+                    Tetromino.compare(coordinates: oldValue, anotherCoordinates: anotherOldValue) &&
+                    Tetromino.compare(coordinates: newValue, anotherCoordinates: anotherNewValue)
             default:
                 return false
             }
@@ -101,7 +103,7 @@ struct GameController {
         }
         
         if let newCoordinates = newCoordinates {
-            subject.send(.new(newCoordinates))
+            subject.send(.new(oldCoordinates, newCoordinates))
         } else {
             subject.send(fallback)
         }

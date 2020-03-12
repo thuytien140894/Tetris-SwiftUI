@@ -20,7 +20,7 @@ class GameManager {
     }()
     
     private var tetromino = Tetromino()
-    
+
     private var cancellableSet = Set<AnyCancellable>()
     
     init(board: Binding<Board>,
@@ -34,7 +34,7 @@ class GameManager {
     
     func startGame() {
         
-        tetromino = makeTetromino()
+        generateNewTetromino()
         
         eventTrigger
             .receiveOnMainThreadIfPossible()
@@ -58,71 +58,59 @@ class GameManager {
             .sink { [weak self] result in
                 guard let self = self else { return }
                 switch result {
-                case .new(let coordinates):
-                    self.updateTetrominoPosition(to: coordinates)
+                case .new(let oldCoordinates, let newCoordinates):
+                    if Tetromino.compare(coordinates: self.tetromino.coordinates,
+                                         anotherCoordinates: oldCoordinates) {
+                        self.tetromino.coordinates = newCoordinates
+                    }
+                    self.moveHighlightedCells(from: oldCoordinates, to: newCoordinates)
                 case .done:
-                    self.tetromino = self.makeTetromino()
+                    self.nextRound()
                 default:
                     return
                 }
             }
             .store(in: &cancellableSet)
         
-        return GameController(subject: subject, movementValidator: areAvailable(coordinates:))
+        return GameController(subject: subject, movementValidator: board.cellsAreOpen(at:))
     }
     
-    private func updateTetrominoPosition(to coordinates: [Coordinate]) {
+    private func moveHighlightedCells(from currentCoordinates: [Coordinate],
+                                      to newCoordinates: [Coordinate]) {
         
-        guard coordinates.count > 0 else { return }
+        guard currentCoordinates.count == newCoordinates.count else { return }
         
-        dehighlightBoard(at: tetromino.coordinates)
-        tetromino.coordinates = coordinates
-    }
-    
-    private func dehighlightBoard(at coordinates: [Coordinate]) {
-        
-        coordinates.forEach { coordinate in
-            let cell = board.cell(atRow: coordinate.y, column: coordinate.x)
-            cell?.isOpen = true
-        }
-    }
-    
-    private func makeTetromino() -> Tetromino {
-        
-        let tetromino = tetrominoGenerator()
-        
-        tetromino.$coordinates
-            .receiveOnMainThreadIfPossible()
-            .sink { [weak self] in
-                guard let self = self else { return }
-                self.highlightBoard(at: $0, color: tetromino.color)
-            }
-            .store(in: &cancellableSet)
-        
-        return tetromino
-    }
-    
-    private func highlightBoard(at coordinates: [Coordinate], color: Color) {
-        
-        coordinates.forEach { coordinate in
-            guard let cell = board.cell(atRow: coordinate.y, column: coordinate.x) else { return }
-            cell.color = color
-            cell.isOpen = false
-        }
-    }
-    
-    private func areAvailable(coordinates: [Coordinate]) -> Bool {
-        
-        for coordinate in coordinates {
+        /// Dehighlights the current cells and saves their colors to the new cells.
+        zip(currentCoordinates, newCoordinates).forEach { (currentCoordinate, newCoordinate) in
             guard
-                let cell = board.cell(atRow: coordinate.y, column: coordinate.x),
-                cell.isOpen else {
-                    
-                    return false
+                let currentCell = board.cell(atRow: currentCoordinate.y, column: currentCoordinate.x),
+                let newCell = board.cell(atRow: newCoordinate.y, column: newCoordinate.x) else { return }
+            
+            let hasColor = (currentCell.color != .clear)
+            newCell.color = hasColor ? currentCell.color : tetromino.color
+            currentCell.isOpen = true
+        }
+        
+        board.highlightCells(at: newCoordinates)
+    }
+    
+    private func nextRound() {
+        
+        if board.tryLineClear() {
+            let cellGroups = board.aggregateCellBlocks()
+            cellGroups.forEach { cellGroup in
+                let coordinates = cellGroup.map { $0.position }
+                gameController.drop(coordinates: coordinates)
             }
         }
         
-        return true
+        generateNewTetromino()
+    }
+    
+    private func generateNewTetromino() {
+        
+        tetromino = tetrominoGenerator()
+        board.highlightCells(at: tetromino.coordinates)
     }
     
     func moveTetrominoRight() {

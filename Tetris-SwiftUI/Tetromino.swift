@@ -182,7 +182,7 @@ class Tetromino: ObservableObject {
     let orientation: Orientation
     let color: Color
     
-    @Published var coordinates: [Coordinate] = []
+    var coordinates: [Coordinate] = []
     
     convenience init() {
         

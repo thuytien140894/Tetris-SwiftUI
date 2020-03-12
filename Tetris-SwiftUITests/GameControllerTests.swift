@@ -20,7 +20,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(0, 1)]))
+                XCTAssertEqual($0, .new([(0, 0)], [(0, 1)]))
             }
             .store(in: &cancellableSet)
             
@@ -34,7 +34,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(1, 0)]))
+                XCTAssertEqual($0, .new([(0, 0)], [(1, 0)]))
             }
             .store(in: &cancellableSet)
             
@@ -48,7 +48,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(-1, 0)]))
+                XCTAssertEqual($0, .new([(0, 0)], [(-1, 0)]))
             }
             .store(in: &cancellableSet)
             
@@ -62,7 +62,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(0, -1), (0, 0)]))
+                XCTAssertEqual($0, .new([(0, 0), (1, 0)], [(0, -1), (0, 0)]))
             }
             .store(in: &cancellableSet)
             
@@ -76,7 +76,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(-1, -1), (-1, 0)]))
+                XCTAssertEqual($0, .new([(0, 0), (1, 0)], [(-1, -1), (-1, 0)]))
             }
             .store(in: &cancellableSet)
             
@@ -96,7 +96,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(-2, -1), (-2, 0)]))
+                XCTAssertEqual($0, .new([(0, 0), (1, 0)], [(-2, -1), (-2, 0)]))
             }
             .store(in: &cancellableSet)
             
@@ -116,7 +116,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .new([(1, -1), (1, 0)]))
+                XCTAssertEqual($0, .new([(0, 0), (1, 0)], [(1, -1), (1, 0)]))
             }
             .store(in: &cancellableSet)
             

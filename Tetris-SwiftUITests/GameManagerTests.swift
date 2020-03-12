@@ -46,14 +46,6 @@ class GameManagerTests: XCTestCase {
         gameManager.stopGame()
     }
     
-    func testChangingTetrominoCoordinatesUpdatesBoard() throws {
-        
-        gameManager.startGame()
-        tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
-        
-        try assertCells(areOpen: false, at: tetromino.coordinates)
-    }
-    
     func testDroppingTetromino() throws {
 
         tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
@@ -141,6 +133,21 @@ class GameManagerTests: XCTestCase {
         
         try assertCells(areOpen: true, at: [(2, 1)])
         try assertCells(areOpen: false, at: initialCoordinates)
+    }
+    
+    func testLineClear() throws {
+        
+        /// Fills the last row.
+        let lastRow = board.rowCount - 1
+        board.cells[lastRow].forEach { $0.isOpen = false }
+        
+        tetromino.coordinates = [(0, 1), (0, 2), (1, 1), (1, 2)]
+        
+        gameManager.startGame()
+        mockTimer.send(Date())
+        
+        try assertCells(areOpen: true, at: [(2, 3), (3, 3)])
+        try assertCells(areOpen: false, at: [(0, 2), (0, 3), (1, 2), (1, 3)])
     }
     
     private func assertCells(areOpen: Bool, at indices: [Coordinate]) throws {

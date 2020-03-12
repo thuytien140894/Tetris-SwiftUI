@@ -10,6 +10,17 @@ import SwiftUI
 
 class Cell: ObservableObject {
     
+    let position: Coordinate
     @Published var isOpen = true
     @Published var color: Color = .clear
+    
+    convenience init() {
+        
+        self.init(position: (0, 0))
+    }
+    
+    init(position: Coordinate) {
+        
+        self.position = position
+    }
 }
