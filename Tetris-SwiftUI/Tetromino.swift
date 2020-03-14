@@ -15,26 +15,23 @@ enum TetrominoType: CaseIterable {
     
     /// Coordinates are used to index the board and modify
     /// its cells' states, and so our coordinate system inverts
-    /// the y axis. Initial coordinates for each tetromino
-    /// place it outside the board, specifically one row above the
-    /// first row so that the tetromino can start descending into
-    /// view.
+    /// the y axis.
     var coordinates: [Coordinate] {
         switch self {
         case .i:
-            return [(0, -1), (1, -1), (2, -1), (3, -1)]
+            return [(0, 0), (1, 0), (2, 0), (3, 0)]
         case .o:
-            return [(0, -2), (0, -1), (1, -1), (1, -2)]
+            return [(0, 0), (0, 1), (1, 1), (1, 0)]
         case .t:
-            return [(0, -1), (1, -1), (2, -1), (1, -2)]
+            return [(0, 1), (1, 1), (2, 1), (1, 0)]
         case .j:
-            return [(2, -1), (1, -1), (0, -1), (0, -2)]
+            return [(2, 1), (1, 1), (0, 1), (0, 0)]
         case .l:
-            return [(0, -1), (1, -1), (2, -1), (2, -2)]
+            return [(0, 1), (1, 1), (2, 1), (2, 0)]
         case .s:
-            return [(0, -1), (1, -1), (1, -2), (2, -2)]
+            return [(0, 1), (1, 1), (1, 0), (2, 0)]
         case .z:
-            return [(2, -1), (1, -1), (1, -2), (0, -2)]
+            return [(2, 1), (1, 1), (1, 0), (0, 0)]
         }
     }
     
@@ -176,8 +173,9 @@ enum Orientation: Double, CaseIterable {
     }
 }
 
-class Tetromino: ObservableObject {
+class Tetromino: ObservableObject, Identifiable {
     
+    let id = UUID()
     let type: TetrominoType
     let orientation: Orientation
     let color: Color
@@ -195,8 +193,23 @@ class Tetromino: ObservableObject {
         self.orientation = orientation
         self.color = color
         
-        coordinates = type.coordinates
-        coordinates = makeInitialCoordinates()
+        coordinates = initialCoordinates()
+    }
+    
+    /// Calculates the tetromino's coordinates using its type and orientation.
+    /// Then adjusts the coordinates so that their y values are non-negative.
+    /// X values should already be non-negative, regardless of rotation.
+    private func initialCoordinates() -> [Coordinate] {
+        
+        var currentCoordinates = orientation.rotate(coordinates: type.coordinates, within: type.enclosedRegion)
+        
+        var yOffset = 0
+        if let minY = (currentCoordinates.map { $0.y }).min() {
+            yOffset = -minY
+        }
+        
+        currentCoordinates = currentCoordinates.map { ($0.x, $0.y + yOffset) }
+        return currentCoordinates
     }
     
     var xPosition = 0 {
@@ -217,25 +230,33 @@ class Tetromino: ObservableObject {
         return maxX - minX + 1
     }
     
-    /// When a tetromino first appears on the board, its cells
-    /// should be above the first row so that it can descend into
-    /// view later. As a result, we adjust the y values to be
-    /// less than 0. X values should always be positive, regardless
-    /// of rotation.
-    private func makeInitialCoordinates() -> [Coordinate] {
+    var height: Int {
+        guard
+            let maxY = (coordinates.map { $0.y }).max(),
+            let minY = (coordinates.map { $0.y }).min() else {
+                return 0
+        }
         
-        let originalCoordinates = orientation.rotate(coordinates: type.coordinates, within: type.enclosedRegion)
+        return maxY - minY + 1
+    }
+    
+    /// Initial coordinates for each tetromino place it
+    /// outside the board, specifically one row above the
+    /// first row so that the tetromino can start descending
+    /// into view. As a result, we adjust the y values to be
+    /// less than 0.
+    func prepareInitialCoordinatesOnBoard() {
         
         var adjustedYTheta = 0
-        if let maxY = (originalCoordinates.map { $0.y }).max() {
+        if let maxY = (coordinates.map { $0.y }).max() {
             adjustedYTheta = maxY + 1
         }
         
-        let adjustedCoordinates = originalCoordinates.map { coordinate in
+        let adjustedCoordinates = coordinates.map { coordinate in
             (coordinate.x, coordinate.y - adjustedYTheta)
         }
         
-        return adjustedCoordinates
+        coordinates = adjustedCoordinates
     }
     
     static func compare(coordinates: [Coordinate], anotherCoordinates: [Coordinate]) -> Bool {

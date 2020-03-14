@@ -13,9 +13,12 @@ struct CellView: View {
     @ObservedObject var cell: Cell
     
     var body: some View {
-        Rectangle()
+        let view = Rectangle()
             .fill(cell.isOpen ? Color.black : cell.color)
             .opacity(0.8)
+        return cell.isHidden
+            ? AnyView(view.hidden())
+            : AnyView(view)
     }
 }
 

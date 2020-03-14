@@ -48,8 +48,8 @@ class GameManagerTests: XCTestCase {
     
     func testDroppingTetromino() throws {
 
-        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         gameManager.startGame()
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         
         /// Sends a value through the timer to prompt the tetromino
         /// to drop.
@@ -71,14 +71,15 @@ class GameManagerTests: XCTestCase {
                                   eventTrigger: mockTimer.eraseToAnyPublisher(),
                                   tetrominoGenerator: tetrominoGenerator)
         
-        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         let cell = board.cell(atRow: 2, column: 0)
         cell?.isOpen = false
         
         /// Starting a game generates a new tetromino; thus
         /// we need to reset the variable before testing.
         manager.startGame()
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         tetrominoIsGenerated = false
+        
         mockTimer.send(Date())
         
         XCTAssert(tetrominoIsGenerated)
@@ -86,8 +87,8 @@ class GameManagerTests: XCTestCase {
 
     func testMovingTetrominoLeft() throws {
 
-        tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
         gameManager.startGame()
+        tetromino.coordinates = [(1, 0), (1, 1), (2, 1), (2, 0)]
         
         gameManager.moveTetrominoLeft()
 
@@ -98,8 +99,8 @@ class GameManagerTests: XCTestCase {
 
     func testMovingTetrominoRight() throws {
 
-        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         gameManager.startGame()
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         
         gameManager.moveTetrominoRight()
 
@@ -111,8 +112,10 @@ class GameManagerTests: XCTestCase {
     func testRotatingTetromino() throws {
 
         tetromino = Tetromino(type: .i, orientation: .one, color: .white)
-        tetromino.coordinates = [(1, 0), (1, 1), (1, 2), (1, 3)]
+        
         gameManager.startGame()
+        tetromino.coordinates = [(1, 0), (1, 1), (1, 2), (1, 3)]
+        board.highlightCells(at: tetromino.coordinates)
         
         gameManager.rotateTetromino()
 
@@ -123,12 +126,14 @@ class GameManagerTests: XCTestCase {
     
     func testMovingTetrominoShouldFail() throws {
 
-        let initialCoordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
-        tetromino.coordinates = initialCoordinates
         let cell = board.cell(atRow: 0, column: 2)
         cell?.isOpen = false
         
         gameManager.startGame()
+        let initialCoordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        tetromino.coordinates = initialCoordinates
+        board.highlightCells(at: tetromino.coordinates)
+        
         gameManager.moveTetrominoRight()
         
         try assertCells(areOpen: true, at: [(2, 1)])
@@ -144,9 +149,10 @@ class GameManagerTests: XCTestCase {
         let lastRow = board.rowCount - 1
         board.cells[lastRow].forEach { $0.isOpen = false }
         
-        tetromino.coordinates = [(0, 1), (1, 1), (2, 1)]
-        
         gameManager.startGame()
+        tetromino.coordinates = [(0, 1), (1, 1), (2, 1)]
+        board.highlightCells(at: tetromino.coordinates)
+        
         mockTimer.send(Date())
         
         let lastSecondRowCoordinates = board.cells[lastSecondRow].map { $0.position }

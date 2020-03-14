@@ -13,6 +13,7 @@ class Cell: ObservableObject {
     let position: Coordinate
     @Published var isOpen = true
     @Published var color: Color = .clear
+    @Published var isHidden = false
     
     convenience init() {
         

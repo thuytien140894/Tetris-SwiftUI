@@ -108,6 +108,7 @@ class GameManager {
     private func generateNewTetromino() {
         
         tetromino = tetrominoGenerator()
+        tetromino.prepareInitialCoordinatesOnBoard()
         board.highlightCells(at: tetromino.coordinates)
     }
     

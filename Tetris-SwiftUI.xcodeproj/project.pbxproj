@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82CF57523FA1BD50064007D /* GameControllerTests.swift */; };
 		E83F429D24172704006FC2BA /* CellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83F429C24172704006FC2BA /* CellTests.swift */; };
+		E842B498241CBD720024FA82 /* NextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E842B497241CBD720024FA82 /* NextView.swift */; };
+		E842B49A241CC0A20024FA82 /* TetrominoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E842B499241CC0A20024FA82 /* TetrominoView.swift */; };
 		E8598B5223F3DDEF0051EBDC /* GameController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8598B5123F3DDEF0051EBDC /* GameController.swift */; };
 		E86A24A423F0088B00A56191 /* BoardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E86A24A323F0088B00A56191 /* BoardTests.swift */; };
 		E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */; };
@@ -48,6 +50,8 @@
 /* Begin PBXFileReference section */
 		E82CF57523FA1BD50064007D /* GameControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControllerTests.swift; sourceTree = "<group>"; };
 		E83F429C24172704006FC2BA /* CellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellTests.swift; sourceTree = "<group>"; };
+		E842B497241CBD720024FA82 /* NextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextView.swift; sourceTree = "<group>"; };
+		E842B499241CC0A20024FA82 /* TetrominoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrominoView.swift; sourceTree = "<group>"; };
 		E8598B5123F3DDEF0051EBDC /* GameController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameController.swift; sourceTree = "<group>"; };
 		E86A24A323F0088B00A56191 /* BoardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardTests.swift; sourceTree = "<group>"; };
 		E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManagerTests.swift; sourceTree = "<group>"; };
@@ -135,6 +139,8 @@
 				E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */,
 				E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */,
 				E8598B5123F3DDEF0051EBDC /* GameController.swift */,
+				E842B497241CBD720024FA82 /* NextView.swift */,
+				E842B499241CC0A20024FA82 /* TetrominoView.swift */,
 			);
 			path = "Tetris-SwiftUI";
 			sourceTree = "<group>";
@@ -325,7 +331,9 @@
 				E8598B5223F3DDEF0051EBDC /* GameController.swift in Sources */,
 				E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */,
 				E8BD3E6523E3FA3200B2CEA1 /* Tetromino.swift in Sources */,
+				E842B498241CBD720024FA82 /* NextView.swift in Sources */,
 				E8FAD06B23E005F80097C050 /* Cell.swift in Sources */,
+				E842B49A241CC0A20024FA82 /* TetrominoView.swift in Sources */,
 				E8FAD06D23E0079E0097C050 /* Board.swift in Sources */,
 				E8FAD07123E011D10097C050 /* BoardView.swift in Sources */,
 				E8FAD03923DE5A700097C050 /* SceneDelegate.swift in Sources */,

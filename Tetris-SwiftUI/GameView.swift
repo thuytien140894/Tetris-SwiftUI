@@ -15,20 +15,31 @@ struct GameView: View {
     @State private var cellWidth: CGFloat = 0
     
     var body: some View {
-        GeometryReader { geometry in
-            BoardView(board: self.$board, cellWidth: self.$cellWidth)
-                .onAppear(perform: { self.setUpBoard(size: geometry.size) })
-                .onTapGesture(perform: { self.gameManager?.rotateTetromino() })
-                .gesture(
-                    DragGesture()
-                        .onEnded { value in
-                            value.translation.width > 0
-                                ? self.gameManager?.moveTetrominoRight()
-                                : self.gameManager?.moveTetrominoLeft()
-                        }
-            )
+        HStack(alignment: .top, spacing: 10) {
+            Text("HOLD")
+                .fontWeight(.bold)
+            
+            GeometryReader { geometry in
+                BoardView(board: self.$board, cellWidth: self.$cellWidth)
+                    .onAppear(perform: { self.setUpBoard(size: geometry.size) })
+                    .onTapGesture(perform: { self.gameManager?.rotateTetromino() })
+                    .gesture(
+                        DragGesture()
+                            .onEnded { value in
+                                value.translation.width > 0
+                                    ? self.gameManager?.moveTetrominoRight()
+                                    : self.gameManager?.moveTetrominoLeft()
+                            }
+                )
+            }
+            
+            NextView(queue: .constant([
+                Tetromino(type: .i, orientation: .one, color: .blue),
+                Tetromino(type: .s, orientation: .one, color: .red),
+                Tetromino(type: .z, orientation: .one, color: .purple)
+            ]))
         }
-        .padding(EdgeInsets(top: 100, leading: 70, bottom: 20, trailing: 70))
+        .padding(EdgeInsets(top: 100, leading: 0, bottom: 20, trailing: 0))
     }
     
     private func setUpBoard(size: CGSize) {

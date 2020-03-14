@@ -97,11 +97,11 @@ class TetrominoTests: XCTestCase {
         
         let tetromino = Tetromino(type: .l, orientation: .two, color: Color.red)
         
-        var expectedCoordinates = [(1, -1), (1, -2), (1, -3), (0, -3)]
+        var expectedCoordinates = [(1, 2), (1, 1), (1, 0), (0, 0)]
         XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
         
         tetromino.xPosition = 1
-        expectedCoordinates = [(2, -1), (2, -2), (2, -3), (1, -3)]
+        expectedCoordinates = [(2, 2), (2, 1), (2, 0), (1, 0)]
         XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
     }
     

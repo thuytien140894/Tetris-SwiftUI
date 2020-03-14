@@ -56,7 +56,7 @@ struct GameController {
     }
     
     /// Drops the coordinates until they can
-    /// no longer be dropped. 
+    /// no longer be dropped.
     func hardDrop(coordinates: [Coordinate]) {
         
         var currentCoordinates: [Coordinate] = []
