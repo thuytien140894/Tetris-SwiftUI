@@ -18,6 +18,7 @@ class CellTests: XCTestCase {
         var cell = Cell(position: (0, 1))
         XCTAssert(cell.position == (0, 1))
         XCTAssert(cell.isOpen)
+        XCTAssertFalse(cell.isHidden)
         XCTAssertEqual(cell.color, .clear)
         
         cell = Cell()

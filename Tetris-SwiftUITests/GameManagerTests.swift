@@ -15,8 +15,12 @@ import SwiftUI
 class GameManagerTests: XCTestCase {
     
     private var board = Board(rowCount: 4, columnCount: 4)
+    private lazy var tetrominoQueue = {
+        [tetromino]
+    }()
+    
     private let mockTimer = PassthroughSubject<Date, Never>()
-    private var tetromino = Tetromino(type: .o, orientation: .one, color: .white)
+    private var tetromino = Tetromino(type: .o, orientation: .one)
     
     private lazy var gameManager: GameManager = {
         let boardBinding = Binding(
@@ -28,10 +32,18 @@ class GameManagerTests: XCTestCase {
             }
         )
         
-        let tetrominoGenerator = { [weak self] in
-            self?.tetromino ?? Tetromino()
-        }
+        let queueBinding = Binding(
+            get: { [weak self] in
+                self?.tetrominoQueue ?? []
+            },
+            set: { [weak self] in
+                self?.tetrominoQueue = $0
+            }
+        )
+        
+        let tetrominoGenerator = { Tetromino() }
         return GameManager(board: boardBinding,
+                           tetrominoQueue: queueBinding,
                            eventTrigger: mockTimer.eraseToAnyPublisher(),
                            tetrominoGenerator: tetrominoGenerator)
     }()
@@ -60,14 +72,26 @@ class GameManagerTests: XCTestCase {
         try assertCells(areOpen: false, at: cellIndices)
     }
     
-    func testNewTetrominoIsGeneratedWhenDroppingFails() {
+    func testNewTetrominoIsGeneratedAndEnqueuedWhenDroppingFails() {
+        
+        let queueBinding = Binding(
+            get: { [weak self] in
+                self?.tetrominoQueue ?? []
+            },
+            set: { [weak self] in
+                self?.tetrominoQueue = $0
+            }
+        )
         
         var tetrominoIsGenerated = false
+        let newTetromino = Tetromino()
         let tetrominoGenerator: () -> Tetromino = {
             tetrominoIsGenerated = true
-            return self.tetromino
+            return newTetromino
         }
+        
         let manager = GameManager(board: .constant(board),
+                                  tetrominoQueue: queueBinding,
                                   eventTrigger: mockTimer.eraseToAnyPublisher(),
                                   tetrominoGenerator: tetrominoGenerator)
         
@@ -83,6 +107,8 @@ class GameManagerTests: XCTestCase {
         mockTimer.send(Date())
         
         XCTAssert(tetrominoIsGenerated)
+        XCTAssertEqual(tetrominoQueue.count, 1)
+        XCTAssert(tetrominoQueue[0] === newTetromino)
     }
 
     func testMovingTetrominoLeft() throws {
@@ -111,7 +137,8 @@ class GameManagerTests: XCTestCase {
 
     func testRotatingTetromino() throws {
 
-        tetromino = Tetromino(type: .i, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .i, orientation: .one)
+        tetrominoQueue = [tetromino]
         
         gameManager.startGame()
         tetromino.coordinates = [(1, 0), (1, 1), (1, 2), (1, 3)]

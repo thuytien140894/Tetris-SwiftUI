@@ -12,6 +12,7 @@ import Combine
 class GameManager {
     
     @Binding private var board: Board
+    @Binding private var tetrominoQueue: [Tetromino]
     
     private let eventTrigger: AnyPublisher<Date, Never>
     private let tetrominoGenerator: () -> Tetromino
@@ -20,21 +21,22 @@ class GameManager {
     }()
     
     private var tetromino = Tetromino()
-
     private var cancellableSet = Set<AnyCancellable>()
     
     init(board: Binding<Board>,
+         tetrominoQueue: Binding<[Tetromino]>,
          eventTrigger: AnyPublisher<Date, Never>,
          tetrominoGenerator: @escaping () -> Tetromino) {
         
         self._board = board
+        self._tetrominoQueue = tetrominoQueue
         self.eventTrigger = eventTrigger
         self.tetrominoGenerator = tetrominoGenerator
     }
     
     func startGame() {
         
-        generateNewTetromino()
+        getNextTetromino()
         
         eventTrigger
             .receiveOnMainThreadIfPossible()
@@ -102,14 +104,20 @@ class GameManager {
             }
         }
         
-        generateNewTetromino()
+        getNextTetromino()
     }
     
-    private func generateNewTetromino() {
+    private func getNextTetromino() {
         
-        tetromino = tetrominoGenerator()
+        guard !tetrominoQueue.isEmpty else { return }
+        
+        tetromino = tetrominoQueue[0]
         tetromino.prepareInitialCoordinatesOnBoard()
         board.highlightCells(at: tetromino.coordinates)
+        
+        tetrominoQueue = Array(tetrominoQueue.dropFirst())
+        let newTetromino = tetrominoGenerator()
+        tetrominoQueue.append(newTetromino)
     }
     
     func moveTetrominoRight() {

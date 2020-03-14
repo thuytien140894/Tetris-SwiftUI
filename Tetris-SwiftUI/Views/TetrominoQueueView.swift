@@ -1,5 +1,5 @@
 //
-//  NextView.swift
+//  TetrominoQueueView.swift
 //  Tetris-SwiftUI
 //
 //  Created by Tien Thuy Ho on 3/14/20.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct NextView: View {
+struct TetrominoQueueView: View {
     
     @Binding var queue: [Tetromino]
     
@@ -17,20 +17,20 @@ struct NextView: View {
             Text("NEXT")
                 .fontWeight(.bold)
             ForEach(queue) { tetromino in
-                TetrominoView(tetromino: tetromino)
+                TetrominoView(type: tetromino.type)
             }
         }
         .frame(width: 80, height: 240)
     }
 }
 
-struct NextView_Previews: PreviewProvider {
+struct TetrominoQueueView_Previews: PreviewProvider {
     static var previews: some View {
         let tetrominos = [
-            Tetromino(type: .o, orientation: .one, color: .blue),
-            Tetromino(type: .s, orientation: .one, color: .red),
-            Tetromino(type: .z, orientation: .one, color: .purple)
+            Tetromino(type: .o, orientation: .one),
+            Tetromino(type: .s, orientation: .one),
+            Tetromino(type: .z, orientation: .one)
         ]
-        return NextView(queue: .constant(tetrominos))
+        return TetrominoQueueView(queue: .constant(tetrominos))
     }
 }

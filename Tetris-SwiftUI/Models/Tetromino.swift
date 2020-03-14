@@ -50,6 +50,25 @@ enum TetrominoType: CaseIterable {
             return [(-1, 1), (1, -1)]
         }
     }
+    
+    var color: Color {
+        switch self {
+        case .i:
+            return .blue
+        case .o:
+            return .red
+        case .t:
+            return .yellow
+        case .j:
+            return .green
+        case .l:
+            return .purple
+        case .s:
+            return .orange
+        case .z:
+            return .pink
+        }
+    }
 }
 
 /// According to our coordinate system, the y axis is inverted.
@@ -184,14 +203,14 @@ class Tetromino: ObservableObject, Identifiable {
     
     convenience init() {
         
-        self.init(type: .i, orientation: .one, color: .white)
+        self.init(type: .i, orientation: .one)
     }
     
-    init(type: TetrominoType, orientation: Orientation, color: Color) {
+    init(type: TetrominoType, orientation: Orientation) {
         
         self.type = type
         self.orientation = orientation
-        self.color = color
+        self.color = type.color
         
         coordinates = initialCoordinates()
     }

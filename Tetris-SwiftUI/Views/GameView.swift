@@ -13,6 +13,7 @@ struct GameView: View {
     @State private var gameManager: GameManager?
     @State private var board = Board()
     @State private var cellWidth: CGFloat = 0
+    @State private var tetrominoQueue: [Tetromino] = []
     
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -33,11 +34,7 @@ struct GameView: View {
                 )
             }
             
-            NextView(queue: .constant([
-                Tetromino(type: .i, orientation: .one, color: .blue),
-                Tetromino(type: .s, orientation: .one, color: .red),
-                Tetromino(type: .z, orientation: .one, color: .purple)
-            ]))
+            TetrominoQueueView(queue: $tetrominoQueue)
         }
         .padding(EdgeInsets(top: 100, leading: 0, bottom: 20, trailing: 0))
     }
@@ -48,7 +45,9 @@ struct GameView: View {
         cellWidth = size.width / CGFloat(board.columnCount)
         
         let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+        tetrominoQueue = (0..<3).map { _ in generateTetromino() }
         gameManager = GameManager(board: $board,
+                                  tetrominoQueue: $tetrominoQueue,
                                   eventTrigger: timer.eraseToAnyPublisher(),
                                   tetrominoGenerator: generateTetromino)
         gameManager?.startGame()
@@ -69,12 +68,9 @@ struct GameView: View {
         
         let type = TetrominoType.allCases.randomElement() ?? .i
         let orientation = Orientation.allCases.randomElement() ?? .one
-        let color = Color(red: Double.random(in: 0.2...1),
-                          green: Double.random(in: 0.2...1),
-                          blue: Double.random(in: 0.2...1))
         
-        let tetromino = Tetromino(type: type, orientation: orientation, color: color)
-        let availableSpace = self.board.columnCount - tetromino.width
+        let tetromino = Tetromino(type: type, orientation: orientation)
+        let availableSpace = board.columnCount - tetromino.width
         tetromino.xPosition = Int.random(in: 0..<availableSpace)
         
         return tetromino

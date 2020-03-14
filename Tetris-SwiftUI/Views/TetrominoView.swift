@@ -13,10 +13,9 @@ struct TetrominoView: View {
     private let tetromino: Tetromino
     private var cells: [[Cell]] = [[]]
     
-    init(tetromino: Tetromino) {
+    init(type: TetrominoType) {
         
-        self.tetromino = tetromino
-        
+        tetromino = Tetromino(type: type, orientation: .one)
         cells = makeCells()
         
         /// Highlights the cells that correspond to the
@@ -72,8 +71,7 @@ struct TetrominoView: View {
 
 struct TetrominoView_Previews: PreviewProvider {
     static var previews: some View {
-        let tetromino = Tetromino(type: .t, orientation: .one, color: .blue)
-        return TetrominoView(tetromino: tetromino)
+        return TetrominoView(type: TetrominoType.t)
             .frame(width: 100, height: 100)
     }
 }

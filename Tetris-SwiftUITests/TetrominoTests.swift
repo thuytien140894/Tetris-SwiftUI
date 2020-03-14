@@ -13,28 +13,35 @@ import SwiftUI
 
 class TetrominoTests: XCTestCase {
 
-    func testTetrominoWidths() {
+    func testTetrominoDimensions() {
         
-        var tetromino = Tetromino(type: .i, orientation: .one, color: .white)
+        var tetromino = Tetromino(type: .i, orientation: .one)
         XCTAssertEqual(tetromino.width, 4)
+        XCTAssertEqual(tetromino.height, 1)
         
-        tetromino = Tetromino(type: .o, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .o, orientation: .one)
         XCTAssertEqual(tetromino.width, 2)
+        XCTAssertEqual(tetromino.height, 2)
         
-        tetromino = Tetromino(type: .t, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .t, orientation: .one)
         XCTAssertEqual(tetromino.width, 3)
+        XCTAssertEqual(tetromino.height, 2)
         
-        tetromino = Tetromino(type: .j, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .j, orientation: .one)
         XCTAssertEqual(tetromino.width, 3)
+        XCTAssertEqual(tetromino.height, 2)
         
-        tetromino = Tetromino(type: .l, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .l, orientation: .one)
         XCTAssertEqual(tetromino.width, 3)
+        XCTAssertEqual(tetromino.height, 2)
         
-        tetromino = Tetromino(type: .s, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .s, orientation: .one)
         XCTAssertEqual(tetromino.width, 3)
+        XCTAssertEqual(tetromino.height, 2)
         
-        tetromino = Tetromino(type: .z, orientation: .one, color: .white)
+        tetromino = Tetromino(type: .z, orientation: .one)
         XCTAssertEqual(tetromino.width, 3)
+        XCTAssertEqual(tetromino.height, 2)
     }
     
     func testCoordinatesOfDifferentRotations() {
@@ -95,13 +102,24 @@ class TetrominoTests: XCTestCase {
     
     func testTetrominoCoordinates() {
         
-        let tetromino = Tetromino(type: .l, orientation: .two, color: Color.red)
+        let tetromino = Tetromino(type: .l, orientation: .two)
         
         var expectedCoordinates = [(1, 2), (1, 1), (1, 0), (0, 0)]
         XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
         
         tetromino.xPosition = 1
         expectedCoordinates = [(2, 2), (2, 1), (2, 0), (1, 0)]
+        XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
+    }
+    
+    func testInitialCoordinatesOnBoard() {
+        
+        let tetromino = Tetromino(type: .i, orientation: .two)
+        var expectedCoordinates: [Coordinate] = [(1, 3), (1, 2), (1, 1), (1, 0)]
+        XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
+        
+        tetromino.prepareInitialCoordinatesOnBoard()
+        expectedCoordinates = [(1, -1), (1, -2), (1, -3), (1, -4)]
         XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
     }
     
