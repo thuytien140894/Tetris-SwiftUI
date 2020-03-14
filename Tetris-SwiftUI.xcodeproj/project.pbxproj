@@ -102,6 +102,28 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E842B49B241CD9E30024FA82 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E8FAD03A23DE5A700097C050 /* GameView.swift */,
+				E8FAD07023E011D10097C050 /* BoardView.swift */,
+				E842B497241CBD720024FA82 /* NextView.swift */,
+				E842B499241CC0A20024FA82 /* TetrominoView.swift */,
+				E8FAD07223E2AB840097C050 /* CellView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		E842B49C241CDA2A0024FA82 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E8FAD06A23E005F80097C050 /* Cell.swift */,
+				E8FAD06C23E0079E0097C050 /* Board.swift */,
+				E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		E8FAD02A23DE5A700097C050 = {
 			isa = PBXGroup;
 			children = (
@@ -125,22 +147,16 @@
 		E8FAD03523DE5A700097C050 /* Tetris-SwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				E842B49C241CDA2A0024FA82 /* Models */,
+				E842B49B241CD9E30024FA82 /* Views */,
 				E8FAD03623DE5A700097C050 /* AppDelegate.swift */,
 				E8FAD03823DE5A700097C050 /* SceneDelegate.swift */,
-				E8FAD03A23DE5A700097C050 /* GameView.swift */,
 				E8FAD03C23DE5A710097C050 /* Assets.xcassets */,
 				E8FAD04123DE5A710097C050 /* LaunchScreen.storyboard */,
 				E8FAD04423DE5A710097C050 /* Info.plist */,
 				E8FAD03E23DE5A710097C050 /* Preview Content */,
-				E8FAD06A23E005F80097C050 /* Cell.swift */,
-				E8FAD06C23E0079E0097C050 /* Board.swift */,
-				E8FAD07023E011D10097C050 /* BoardView.swift */,
-				E8FAD07223E2AB840097C050 /* CellView.swift */,
 				E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */,
-				E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */,
 				E8598B5123F3DDEF0051EBDC /* GameController.swift */,
-				E842B497241CBD720024FA82 /* NextView.swift */,
-				E842B499241CC0A20024FA82 /* TetrominoView.swift */,
 			);
 			path = "Tetris-SwiftUI";
 			sourceTree = "<group>";
