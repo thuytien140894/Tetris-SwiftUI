@@ -66,8 +66,6 @@ class GameManager {
                     self.moveHighlightedCells(from: oldCoordinates, to: newCoordinates)
                 case .done:
                     self.nextRound()
-                default:
-                    return
                 }
             }
             .store(in: &cancellableSet)
@@ -100,7 +98,7 @@ class GameManager {
             let cellGroups = board.aggregateCellBlocks()
             cellGroups.forEach { cellGroup in
                 let coordinates = cellGroup.map { $0.position }
-                gameController.drop(coordinates: coordinates)
+                gameController.hardDrop(coordinates: coordinates)
             }
         }
         

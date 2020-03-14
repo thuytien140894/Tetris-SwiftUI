@@ -10,7 +10,6 @@ import Combine
 
 enum MovementResult {
     case new(_ oldValue: [Coordinate], _ newValue: [Coordinate])
-    case notPossible
     case done
 }
 
@@ -25,13 +24,6 @@ extension MovementResult: Equatable {
                 return
                     Tetromino.compare(coordinates: oldValue, anotherCoordinates: anotherOldValue) &&
                     Tetromino.compare(coordinates: newValue, anotherCoordinates: anotherNewValue)
-            default:
-                return false
-            }
-        case .notPossible:
-            switch rhs {
-            case .notPossible:
-                return true
             default:
                 return false
             }
@@ -60,7 +52,23 @@ struct GameController {
     func drop(coordinates: [Coordinate]) {
     
         let newCoordinates = coordinates.map { ($0.x, $0.y + 1) }
-        publishMovementResult(from: coordinates, to: [newCoordinates], fallback: .done)
+        publishMovementResult(from: coordinates, to: [newCoordinates], shouldNotifyFailure: true)
+    }
+    
+    /// Drops the coordinates until they can
+    /// no longer be dropped. 
+    func hardDrop(coordinates: [Coordinate]) {
+        
+        var currentCoordinates: [Coordinate] = []
+        var newCoordinates = coordinates
+        var filteredCoordinates: [Coordinate] = []
+        repeat {
+            currentCoordinates = newCoordinates
+            newCoordinates = currentCoordinates.map { ($0.x, $0.y + 1) }
+            filteredCoordinates = exclude(coordinates: newCoordinates, from: currentCoordinates)
+        } while movementValidator(filteredCoordinates)
+        
+        subject.send(.new(coordinates, currentCoordinates))
     }
     
     func moveRight(coordinates: [Coordinate]) {
@@ -90,22 +98,29 @@ struct GameController {
     
     private func publishMovementResult(from oldCoordinates: [Coordinate],
                                        to newCoordinateOptions: [[Coordinate]],
-                                       fallback: MovementResult = .notPossible) {
+                                       shouldNotifyFailure: Bool = false) {
+        
+        let newCoordinates = newCoordinateOptions.first { coordinates in
+            let filteredCoordinates = exclude(coordinates: coordinates, from: oldCoordinates)
+            return movementValidator(filteredCoordinates)
+        }
+    
+        if let newCoordinates = newCoordinates {
+            subject.send(.new(oldCoordinates, newCoordinates))
+        } else if shouldNotifyFailure {
+            subject.send(.done)
+        }
+    }
+    
+    private func exclude(coordinates: [Coordinate],
+                         from anotherCoordinates: [Coordinate]) -> [Coordinate] {
         
         let isOverlapped: (Coordinate) -> Bool = { coordinate in
-            let matchedCoordinate = oldCoordinates.first(where: { $0 == coordinate })
+            let matchedCoordinate = anotherCoordinates.first(where: { $0 == coordinate })
             return matchedCoordinate != nil
         }
         
-        let newCoordinates = newCoordinateOptions.first { coordinates in
-            let filteredCoordinates = coordinates.filter { !isOverlapped($0) }
-            return movementValidator(filteredCoordinates)
-        }
-        
-        if let newCoordinates = newCoordinates {
-            subject.send(.new(oldCoordinates, newCoordinates))
-        } else {
-            subject.send(fallback)
-        }
+        let filteredCoordinates = coordinates.filter { !isOverlapped($0) }
+        return filteredCoordinates
     }
 }

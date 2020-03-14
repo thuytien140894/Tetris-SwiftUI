@@ -137,17 +137,21 @@ class GameManagerTests: XCTestCase {
     
     func testLineClear() throws {
         
-        /// Fills the last row.
+        /// Fills the last two rows.
+        let lastSecondRow = board.rowCount - 2
+        board.cells[lastSecondRow].forEach { $0.isOpen = false }
+        
         let lastRow = board.rowCount - 1
         board.cells[lastRow].forEach { $0.isOpen = false }
         
-        tetromino.coordinates = [(0, 1), (0, 2), (1, 1), (1, 2)]
+        tetromino.coordinates = [(0, 1), (1, 1), (2, 1)]
         
         gameManager.startGame()
         mockTimer.send(Date())
         
-        try assertCells(areOpen: true, at: [(2, 3), (3, 3)])
-        try assertCells(areOpen: false, at: [(0, 2), (0, 3), (1, 2), (1, 3)])
+        let lastSecondRowCoordinates = board.cells[lastSecondRow].map { $0.position }
+        try assertCells(areOpen: true, at: lastSecondRowCoordinates + [(3, 3)])
+        try assertCells(areOpen: false, at: [(0, 3), (1, 3), (2, 3)])
     }
     
     private func assertCells(areOpen: Bool, at indices: [Coordinate]) throws {

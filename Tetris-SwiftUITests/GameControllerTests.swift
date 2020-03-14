@@ -145,45 +145,23 @@ class GameControllerTests: XCTestCase {
         gameController.drop(coordinates: [(0, 0)])
     }
     
-    func testMovingCoordinatesRightFails() {
+    func testHardDroppingCoordinates() {
         
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .notPossible)
+                XCTAssertEqual($0, .new([(0, 0), (1, 0)], [(0, 2), (1, 2)]))
             }
             .store(in: &cancellableSet)
-            
-        let validator: ([Coordinate]) -> Bool = { _ in false }
-        let gameController = GameController(subject: subject, movementValidator: validator)
-        gameController.moveRight(coordinates: [(0, 0)])
-    }
-
-    func testMovingCoordinatesLeftFails() {
         
-        let subject = PassthroughSubject<MovementResult, Never>()
-        subject
-            .sink {
-                XCTAssertEqual($0, .notPossible)
-            }
-            .store(in: &cancellableSet)
-            
-        let validator: ([Coordinate]) -> Bool = { _ in false }
-        let gameController = GameController(subject: subject, movementValidator: validator)
-        gameController.moveLeft(coordinates: [(0, 0)])
-    }
-    
-    func testRotatingCoordinatesRightFails() {
+        let desiredValue = 3
+        var counter = 0
+        let validator: ([Coordinate]) -> Bool = { _ in
+            counter += 1
+            return counter < desiredValue
+        }
         
-        let subject = PassthroughSubject<MovementResult, Never>()
-        subject
-            .sink {
-                XCTAssertEqual($0, .notPossible)
-            }
-            .store(in: &cancellableSet)
-            
-        let validator: ([Coordinate]) -> Bool = { _ in false }
         let gameController = GameController(subject: subject, movementValidator: validator)
-        gameController.rotate(coordinates: [(0, 0)])
+        gameController.hardDrop(coordinates: [(0, 0), (1, 0)])
     }
 }
