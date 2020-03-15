@@ -91,9 +91,7 @@ enum Orientation: Double, CaseIterable {
             return []
         }
         
-        let pivotPosition = Int(ceil(Double(coordinates.count) / 2))
-        var adjustedCoordinates = Orientation.adjustCoordinatesToOrigin(coordinates,
-                                                                        pivot: coordinates[pivotPosition - 1])
+        var adjustedCoordinates = adjustCoordinatesToOrigin(coordinates)
         
         /// Makes sure coordinates adjusted to the origin also lie within the
         /// specified region before rotation.
@@ -113,6 +111,21 @@ enum Orientation: Double, CaseIterable {
         }
         
         return rotatedCoordinates
+    }
+    
+    private func adjustCoordinatesToOrigin(_ coordinates: [Coordinate]) -> [Coordinate] {
+        
+        let pivotPosition = Int(ceil(Double(coordinates.count) / 2))
+        let pivotCoordinate = coordinates[pivotPosition - 1]
+        
+        let xTheta = -pivotCoordinate.x
+        let yTheta = -pivotCoordinate.y
+        
+        let adjustedCoordinates = coordinates.map { coordinate in
+            (coordinate.x + xTheta, coordinate.y + yTheta)
+        }
+        
+        return adjustedCoordinates
     }
     
     /// Performs rotation on a set of coordinates by multiplying
@@ -178,18 +191,6 @@ enum Orientation: Double, CaseIterable {
         
         return adjustedCoordinates
     }
-    
-    static func adjustCoordinatesToOrigin(_ coordinates: [Coordinate], pivot coordinate: Coordinate) -> [Coordinate] {
-        
-        let xTheta = 0 - coordinate.x
-        let yTheta = 0 - coordinate.y
-        
-        let adjustedCoordinates = coordinates.map { coordinate in
-            (coordinate.x + xTheta, coordinate.y + yTheta)
-        }
-        
-        return adjustedCoordinates
-    }
 }
 
 class Tetromino: ObservableObject, Identifiable {
@@ -231,14 +232,6 @@ class Tetromino: ObservableObject, Identifiable {
         return currentCoordinates
     }
     
-    var xPosition = 0 {
-        didSet {
-            coordinates = coordinates.map { coordinate in
-                (coordinate.x + xPosition, coordinate.y)
-            }
-        }
-    }
-    
     var width: Int {
         guard
             let maxX = (coordinates.map { $0.x }).max(),
@@ -276,6 +269,14 @@ class Tetromino: ObservableObject, Identifiable {
         }
         
         coordinates = adjustedCoordinates
+    }
+    
+    func adjustXPositionFromOrigin(by offset: Int) {
+        
+        guard let minX = (coordinates.map { $0.x }).min() else { return }
+        coordinates = coordinates.map { coordinate in
+            (coordinate.x - minX + offset, coordinate.y)
+        }
     }
     
     static func compare(coordinates: [Coordinate], anotherCoordinates: [Coordinate]) -> Bool {

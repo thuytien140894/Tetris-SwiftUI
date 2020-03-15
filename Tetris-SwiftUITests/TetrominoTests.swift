@@ -107,8 +107,12 @@ class TetrominoTests: XCTestCase {
         var expectedCoordinates = [(1, 2), (1, 1), (1, 0), (0, 0)]
         XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
         
-        tetromino.xPosition = 1
+        tetromino.adjustXPositionFromOrigin(by: 1)
         expectedCoordinates = [(2, 2), (2, 1), (2, 0), (1, 0)]
+        XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
+        
+        tetromino.adjustXPositionFromOrigin(by: 5)
+        expectedCoordinates = [(6, 2), (6, 1), (6, 0), (5, 0)]
         XCTAssert(Tetromino.compare(coordinates: tetromino.coordinates, anotherCoordinates: expectedCoordinates))
     }
     

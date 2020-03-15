@@ -18,6 +18,7 @@ class GameManagerTests: XCTestCase {
     private lazy var tetrominoQueue = {
         [tetromino]
     }()
+    private var savedTetromino: Tetromino?
     
     private let mockTimer = PassthroughSubject<Date, Never>()
     private var tetromino = Tetromino(type: .o, orientation: .one)
@@ -41,9 +42,19 @@ class GameManagerTests: XCTestCase {
             }
         )
         
+        let savedTetrominoBinding = Binding(
+            get: { [weak self] in
+                self?.savedTetromino
+            },
+            set: { [weak self] in
+                self?.savedTetromino = $0
+            }
+        )
+        
         let tetrominoGenerator = { Tetromino() }
         return GameManager(board: boardBinding,
                            tetrominoQueue: queueBinding,
+                           savedTetromino: savedTetrominoBinding,
                            eventTrigger: mockTimer.eraseToAnyPublisher(),
                            tetrominoGenerator: tetrominoGenerator)
     }()
@@ -52,6 +63,7 @@ class GameManagerTests: XCTestCase {
         
         super.setUp()
         
+        tetrominoQueue = [tetromino]
         tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         
         gameManager.reset()
@@ -92,23 +104,21 @@ class GameManagerTests: XCTestCase {
         
         let manager = GameManager(board: .constant(board),
                                   tetrominoQueue: queueBinding,
+                                  savedTetromino: .constant(nil), 
                                   eventTrigger: mockTimer.eraseToAnyPublisher(),
                                   tetrominoGenerator: tetrominoGenerator)
         
-        let cell = board.cell(atRow: 2, column: 0)
-        cell?.isOpen = false
-        
-        /// Starting a game generates a new tetromino; thus
-        /// we need to reset the variable before testing.
         manager.startGame()
-        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        
+        /// Locks the current tetromino.
+        tetromino.coordinates = [(0, 2), (0, 3), (1, 3), (1, 2)]
         tetrominoIsGenerated = false
         
         mockTimer.send(Date())
         
         XCTAssert(tetrominoIsGenerated)
         XCTAssertEqual(tetrominoQueue.count, 1)
-        XCTAssert(tetrominoQueue[0] === newTetromino)
+        XCTAssert(tetrominoQueue.first === newTetromino)
     }
 
     func testMovingTetrominoLeft() throws {
@@ -152,14 +162,16 @@ class GameManagerTests: XCTestCase {
     }
     
     func testMovingTetrominoShouldFail() throws {
-
-        let cell = board.cell(atRow: 0, column: 2)
-        cell?.isOpen = false
         
         gameManager.startGame()
         let initialCoordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         tetromino.coordinates = initialCoordinates
         board.highlightCells(at: tetromino.coordinates)
+        
+        /// Highlights one cell to the right of the current
+        /// tetromino to block its movement.
+        let cell = board.cell(at: (2, 0))
+        cell?.isOpen = false
         
         gameManager.moveTetrominoRight()
         
@@ -177,20 +189,104 @@ class GameManagerTests: XCTestCase {
         board.cells[lastRow].forEach { $0.isOpen = false }
         
         gameManager.startGame()
-        tetromino.coordinates = [(0, 1), (1, 1), (2, 1)]
+        tetromino.coordinates = [(0, 1), (1, 1), (0, 2), (1, 2)]
         board.highlightCells(at: tetromino.coordinates)
         
         mockTimer.send(Date())
         
+        /// The last two rows should be cleared, and the tetromino
+        /// should hard drop. 
         let lastSecondRowCoordinates = board.cells[lastSecondRow].map { $0.position }
-        try assertCells(areOpen: true, at: lastSecondRowCoordinates + [(3, 3)])
-        try assertCells(areOpen: false, at: [(0, 3), (1, 3), (2, 3)])
+        try assertCells(areOpen: true, at: lastSecondRowCoordinates + [(2, 3), (3, 3)])
+        try assertCells(areOpen: false, at: [(0, 3), (1, 3)])
+    }
+    
+    func testSavingFirstTetromino() throws {
+        
+        savedTetromino = nil
+        
+        let firstTetromino = Tetromino(type: .i, orientation: .one)
+        let secondTetromino = Tetromino(type: .o, orientation: .one)
+        tetrominoQueue = [firstTetromino, secondTetromino]
+        
+        gameManager.startGame()
+        firstTetromino.coordinates = [(0, 0), (1, 0), (2, 0), (3, 0)]
+        
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === firstTetromino)
+        
+        /// Since there is no currently saved tetromino, the current
+        /// tetromino is replaced by the next one in queue. This
+        /// tetromino's coordinates should be adjusted accordingly.
+        XCTAssert(Tetromino.compare(coordinates: secondTetromino.coordinates,
+                                    anotherCoordinates: [(1, 0), (1, 1), (2, 1), (2, 0)]))
+        try assertCells(areOpen: true, at: [(0, 0), (3, 0)])
+        try assertCells(areOpen: false, at: secondTetromino.coordinates)
+    }
+    
+    func testSavingAnotherTetromino() throws {
+        
+        savedTetromino = Tetromino(type: .s, orientation: .one)
+        
+        gameManager.startGame()
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        
+        XCTAssertEqual(tetrominoQueue.count, 1)
+        let queuedTetromino = try XCTUnwrap(tetrominoQueue.first, "One tetromino should be enqueued.")
+        
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === tetromino)
+        
+        /// The current tetromino is swapped with the saved
+        /// tetromnino. Hence the next tetromino should
+        /// still remain in the queue.
+        XCTAssertEqual(tetrominoQueue.count, 1)
+        XCTAssert(tetrominoQueue.first === queuedTetromino)
+        
+        try assertCells(areOpen: true, at: [(0, 0), (0, 1), (1, 0)])
+        
+        /// Cells for a T-shaped tetromino should be highlighted
+        /// to indicate that the current tetromino has been
+        /// swapped correctly.
+        try assertCells(areOpen: false, at: [(1, 1), (2, 1), (2, 0), (3, 0)])
+    }
+    
+    func testSavingTetrominoIsDisabled() {
+        
+        savedTetromino = nil
+        
+        let firstTetromino = Tetromino(type: .i, orientation: .one)
+        let secondTetromino = Tetromino(type: .o, orientation: .one)
+        let thirdTetromino = Tetromino(type: .t, orientation: .one)
+        tetrominoQueue = [firstTetromino, secondTetromino, thirdTetromino]
+        
+        gameManager.startGame()
+        
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === firstTetromino)
+        
+        /// Saving a tetromino is disabled immediately
+        /// after a save.
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === firstTetromino)
+        
+        /// The current tetromino should be replaced with
+        /// the second tetromino in the queue. We lock
+        /// its coordinates.
+        secondTetromino.coordinates = [(0, 2), (0, 3), (1, 2), (1, 3)]
+        mockTimer.send(Date())
+         
+        /// Since the tetromino is locked, the next round
+        /// starts to dequeue the next tetromino.
+        /// Saving tetromino should be enabled again.
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === thirdTetromino)
     }
     
     private func assertCells(areOpen: Bool, at indices: [Coordinate]) throws {
         
         try indices.forEach { coordinate in
-            let cell = try XCTUnwrap(board.cell(atRow: coordinate.y, column: coordinate.x), "A cell should exist.")
+            let cell = try XCTUnwrap(board.cell(at: coordinate), "A cell should exist.")
             areOpen ? XCTAssert(cell.isOpen) : XCTAssertFalse(cell.isOpen)
         }
     }

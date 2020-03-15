@@ -14,16 +14,17 @@ struct GameView: View {
     @State private var board = Board()
     @State private var cellWidth: CGFloat = 0
     @State private var tetrominoQueue: [Tetromino] = []
+    @State private var savedTetromino: Tetromino?
     
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Text("HOLD")
-                .fontWeight(.bold)
+        HStack(alignment: .top, spacing: 15) {
+            HoldView(tetromino: $savedTetromino) { self.gameManager?.saveTetromino() }
+                .frame(width: 80, height: 100)
             
             GeometryReader { geometry in
                 BoardView(board: self.$board, cellWidth: self.$cellWidth)
                     .onAppear(perform: { self.setUpBoard(size: geometry.size) })
-                    .onTapGesture(perform: { self.gameManager?.rotateTetromino() })
+                    .onTapGesture { self.gameManager?.rotateTetromino() }
                     .gesture(
                         DragGesture()
                             .onEnded { value in
@@ -35,8 +36,9 @@ struct GameView: View {
             }
             
             TetrominoQueueView(queue: $tetrominoQueue)
+                .frame(width: 80, height: 240)
         }
-        .padding(EdgeInsets(top: 100, leading: 0, bottom: 20, trailing: 0))
+        .padding(EdgeInsets(top: 150, leading: 5, bottom: 20, trailing: 5))
     }
     
     private func setUpBoard(size: CGSize) {
@@ -48,6 +50,7 @@ struct GameView: View {
         tetrominoQueue = (0..<3).map { _ in generateTetromino() }
         gameManager = GameManager(board: $board,
                                   tetrominoQueue: $tetrominoQueue,
+                                  savedTetromino: $savedTetromino,
                                   eventTrigger: timer.eraseToAnyPublisher(),
                                   tetrominoGenerator: generateTetromino)
         gameManager?.startGame()
@@ -71,7 +74,8 @@ struct GameView: View {
         
         let tetromino = Tetromino(type: type, orientation: orientation)
         let availableSpace = board.columnCount - tetromino.width
-        tetromino.xPosition = Int.random(in: 0..<availableSpace)
+        let xOffset = Int.random(in: 0..<availableSpace)
+        tetromino.adjustXPositionFromOrigin(by: xOffset)
         
         return tetromino
     }

@@ -24,22 +24,22 @@ class BoardTests: XCTestCase {
         let board = Board(rowCount: 2, columnCount: 2)
         
         // Invalid column
-        var cell = board.cell(atRow: 0, column: -1)
+        var cell = board.cell(at: (-1, 0))
         XCTAssertNil(cell)
         
-        cell = board.cell(atRow: 0, column: 2)
+        cell = board.cell(at: (2, 0))
         XCTAssertNil(cell)
         
         // Invalid row
-        cell = board.cell(atRow: 2, column: 0)
+        cell = board.cell(at: (0, 2))
         XCTAssertNil(cell)
         
         // "Valid" index for non-visible cells
-        cell = board.cell(atRow: -1, column: 0)
+        cell = board.cell(at: (0, -1))
         XCTAssertNotNil(cell)
         
         // Valid index
-        cell = board.cell(atRow: 1, column: 0)
+        cell = board.cell(at: (0, 1))
         XCTAssertNotNil(cell)
     }
     
@@ -93,18 +93,63 @@ class BoardTests: XCTestCase {
         XCTAssertEqual(cellGroups[2].count, 4)
     }
     
-    func testHighlightingCells() {
+    func testMovingHighlightedCells() {
         
-        let board = Board(rowCount: 2, columnCount: 2)
-        let coordinates: [Coordinate] = [(0, 0), (1, 1)]
-        board.highlightCells(at: coordinates)
+        let board = Board(rowCount: 5, columnCount: 5)
+        let currentCoordinates = [(0, 0), (0, 1), (0, 2), (0, 3)]
+        board.highlightCells(at: currentCoordinates, using: .blue)
         
-        coordinates.forEach { coordinate in
-            guard let cell = board.cell(atRow: coordinate.y, column: coordinate.x) else {
+        var newCoordinates = [(4, 0), (4, 1), (4, 2)]
+        
+        /// Mismatched number of coordinates results in no
+        /// no change.
+        board.moveHighlightedCells(from: currentCoordinates, to: newCoordinates)
+        XCTAssert(board.cellsAreOpen(at: newCoordinates))
+        currentCoordinates.forEach { coordinate in
+            guard let cell = board.cell(at: coordinate) else {
                 return XCTFail("Cell should exist.")
             }
             XCTAssertFalse(cell.isOpen)
         }
+        
+        newCoordinates = [(4, 0), (4, 1), (4, 2), (4, 3)]
+        board.moveHighlightedCells(from: currentCoordinates, to: newCoordinates)
+        XCTAssert(board.cellsAreOpen(at: currentCoordinates))
+        newCoordinates.forEach { coordinate in
+            guard let cell = board.cell(at: coordinate) else {
+                return XCTFail("Cell should exist.")
+            }
+            XCTAssertFalse(cell.isOpen)
+        }
+    }
+    
+    func testHighlightingCells() {
+        
+        let board = Board(rowCount: 2, columnCount: 2)
+        let coordinates: [Coordinate] = [(0, 0), (1, 1)]
+        board.highlightCells(at: coordinates, using: .red)
+        
+        coordinates.forEach { coordinate in
+            guard let cell = board.cell(at: coordinate) else {
+                return XCTFail("Cell should exist.")
+            }
+            XCTAssertFalse(cell.isOpen)
+            XCTAssertEqual(cell.color, .red)
+        }
+    }
+    
+    func testDehighlightingCells() {
+        
+        let board = Board(rowCount: 2, columnCount: 2)
+        board.cells[0][0].isOpen = false
+        board.cells[0][1].isOpen = false
+        board.cells[1][0].isOpen = false
+        
+        let coordinates = [(0, 0), (1, 0)]
+        board.dehighlightCells(at: coordinates)
+        
+        XCTAssert(board.cellsAreOpen(at: coordinates))
+        XCTAssertFalse(board.cells[1][0].isOpen)
     }
     
     func testCellsAreOpen() {

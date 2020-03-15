@@ -10,7 +10,7 @@ import Combine
 
 enum MovementResult {
     case new(_ oldValue: [Coordinate], _ newValue: [Coordinate])
-    case done
+    case locked
 }
 
 extension MovementResult: Equatable {
@@ -27,9 +27,9 @@ extension MovementResult: Equatable {
             default:
                 return false
             }
-        case .done:
+        case .locked:
             switch rhs {
-            case .done:
+            case .locked:
                 return true
             default:
                 return false
@@ -108,7 +108,7 @@ struct GameController {
         if let newCoordinates = newCoordinates {
             subject.send(.new(oldCoordinates, newCoordinates))
         } else if shouldNotifyFailure {
-            subject.send(.done)
+            subject.send(.locked)
         }
     }
     

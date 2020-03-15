@@ -16,11 +16,18 @@ struct TetrominoQueueView: View {
         VStack(alignment: .center, spacing: 20) {
             Text("NEXT")
                 .fontWeight(.bold)
-            ForEach(queue) { tetromino in
-                TetrominoView(type: tetromino.type)
+            
+            if queue.count > 0 {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(.sRGBLinear, red: 0.2, green: 0.5, blue: 0.95, opacity: 0.3))
+                    TetrominoView(type: queue[0].type)
+                }
+                ForEach(1..<queue.count) { index in
+                    TetrominoView(type: self.queue[index].type)
+                }
             }
         }
-        .frame(width: 80, height: 240)
     }
 }
 
@@ -32,5 +39,6 @@ struct TetrominoQueueView_Previews: PreviewProvider {
             Tetromino(type: .z, orientation: .one)
         ]
         return TetrominoQueueView(queue: .constant(tetrominos))
+            .frame(width: 80, height: 240)
     }
 }

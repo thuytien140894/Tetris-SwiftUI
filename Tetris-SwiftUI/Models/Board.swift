@@ -34,12 +34,17 @@ struct Board {
         cells = newCells
     }
     
-    /// Returns a cell at the specified row and column.
+    /// Returns a cell at the specified coordinate
+    /// where x corresponds to the column index and
+    /// y to the row index.
     /// Whereas the column index must be within bounds, the row
     /// index can be negative for tetrominos that have not
     /// descended into view. Therefore, we return a "dummy"
     /// cell to indicate validity.
-    func cell(atRow row: Int, column: Int) -> Cell? {
+    func cell(at coordinate: Coordinate) -> Cell? {
+        
+        let column = coordinate.x
+        let row = coordinate.y
         
         guard
             (0..<columnCount).contains(column),
@@ -125,7 +130,7 @@ struct Board {
                 let neighborCellIterators: [CellIterator] = neighborCoordinates
                     .compactMap { coordinate in
                         guard
-                            let cell = self.cell(atRow: coordinate.y, column: coordinate.x),
+                            let cell = self.cell(at: coordinate),
                             let iterator = cellIterators.first(where: { $0.cell === cell }),
                             !iterator.isVisited,
                             !stack.contains(iterator) else {
@@ -143,12 +148,43 @@ struct Board {
         
         return cellGroups
     }
+    
+    func moveHighlightedCells(from currentCoordinates: [Coordinate],
+                              to newCoordinates: [Coordinate],
+                              using color: Color? = nil) {
+        
+        guard currentCoordinates.count == newCoordinates.count else { return }
+        
+        /// Dehighlights the current cells and saves their colors to the new cells.
+        zip(currentCoordinates, newCoordinates).forEach { (currentCoordinate, newCoordinate) in
+            guard
+                let currentCell = cell(at: currentCoordinate),
+                let newCell = cell(at: newCoordinate) else { return }
+            
+            newCell.color = currentCell.color
+            currentCell.isOpen = true
+        }
+        
+        highlightCells(at: newCoordinates, using: color)
+    }
 
-    func highlightCells(at coordinates: [Coordinate]) {
+    func highlightCells(at coordinates: [Coordinate], using color: Color? = nil) {
         
         coordinates.forEach { coordinate in
-            let cell = self.cell(atRow: coordinate.y, column: coordinate.x)
-            cell?.isOpen = false
+            guard let cell = self.cell(at: coordinate) else { return }
+            cell.isOpen = false
+            
+            if let color = color {
+                cell.color = color
+            }
+        }
+    }
+    
+    func dehighlightCells(at coordinates: [Coordinate]) {
+        
+        coordinates.forEach { coordinate in
+            guard let cell = self.cell(at: coordinate) else { return }
+            cell.isOpen = true
         }
     }
     
@@ -156,7 +192,7 @@ struct Board {
         
         for coordinate in coordinates {
             guard
-                let cell = self.cell(atRow: coordinate.y, column: coordinate.x),
+                let cell = self.cell(at: coordinate),
                 cell.isOpen else {
                     
                     return false

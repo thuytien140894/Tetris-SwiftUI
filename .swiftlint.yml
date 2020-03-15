@@ -8,4 +8,4 @@ type_name:
 identifier_name:
   min_length: 1
 excluded:
-  - Tetris-SwiftUI/Preview\ Content
+  - Tetris-SwiftUI/DerivedData

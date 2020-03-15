@@ -136,7 +136,7 @@ class GameControllerTests: XCTestCase {
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
             .sink {
-                XCTAssertEqual($0, .done)
+                XCTAssertEqual($0, .locked)
             }
             .store(in: &cancellableSet)
             

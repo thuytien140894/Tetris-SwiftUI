@@ -13,6 +13,7 @@ class GameManager {
     
     @Binding private var board: Board
     @Binding private var tetrominoQueue: [Tetromino]
+    @Binding private var savedTetromino: Tetromino?
     
     private let eventTrigger: AnyPublisher<Date, Never>
     private let tetrominoGenerator: () -> Tetromino
@@ -22,21 +23,24 @@ class GameManager {
     
     private var tetromino = Tetromino()
     private var cancellableSet = Set<AnyCancellable>()
+    private var canSaveTetromino = true
     
     init(board: Binding<Board>,
          tetrominoQueue: Binding<[Tetromino]>,
+         savedTetromino: Binding<Tetromino?>,
          eventTrigger: AnyPublisher<Date, Never>,
          tetrominoGenerator: @escaping () -> Tetromino) {
         
         self._board = board
         self._tetrominoQueue = tetrominoQueue
+        self._savedTetromino = savedTetromino
         self.eventTrigger = eventTrigger
         self.tetrominoGenerator = tetrominoGenerator
     }
     
     func startGame() {
         
-        getNextTetromino()
+        tetromino = nextTetromino()
         
         eventTrigger
             .receiveOnMainThreadIfPossible()
@@ -61,12 +65,8 @@ class GameManager {
                 guard let self = self else { return }
                 switch result {
                 case .new(let oldCoordinates, let newCoordinates):
-                    if Tetromino.compare(coordinates: self.tetromino.coordinates,
-                                         anotherCoordinates: oldCoordinates) {
-                        self.tetromino.coordinates = newCoordinates
-                    }
-                    self.moveHighlightedCells(from: oldCoordinates, to: newCoordinates)
-                case .done:
+                    self.updateBoard(from: oldCoordinates, to: newCoordinates)
+                case .locked:
                     self.nextRound()
                 }
             }
@@ -75,23 +75,16 @@ class GameManager {
         return GameController(subject: subject, movementValidator: board.cellsAreOpen(at:))
     }
     
-    private func moveHighlightedCells(from currentCoordinates: [Coordinate],
-                                      to newCoordinates: [Coordinate]) {
+    private func updateBoard(from oldCoordinates: [Coordinate], to newCoordinates: [Coordinate]) {
         
-        guard currentCoordinates.count == newCoordinates.count else { return }
-        
-        /// Dehighlights the current cells and saves their colors to the new cells.
-        zip(currentCoordinates, newCoordinates).forEach { (currentCoordinate, newCoordinate) in
-            guard
-                let currentCell = board.cell(atRow: currentCoordinate.y, column: currentCoordinate.x),
-                let newCell = board.cell(atRow: newCoordinate.y, column: newCoordinate.x) else { return }
-            
-            let hasColor = (currentCell.color != .clear)
-            newCell.color = hasColor ? currentCell.color : tetromino.color
-            currentCell.isOpen = true
+        if Tetromino.compare(coordinates: self.tetromino.coordinates,
+                             anotherCoordinates: oldCoordinates) {
+            board.dehighlightCells(at: oldCoordinates)
+            board.highlightCells(at: newCoordinates, using: tetromino.color)
+            tetromino.coordinates = newCoordinates
+        } else {
+            self.board.moveHighlightedCells(from: oldCoordinates, to: newCoordinates)
         }
-        
-        board.highlightCells(at: newCoordinates)
     }
     
     private func nextRound() {
@@ -104,20 +97,16 @@ class GameManager {
             }
         }
         
-        getNextTetromino()
+        tetromino = nextTetromino()
+        canSaveTetromino = true
     }
     
-    private func getNextTetromino() {
+    private func nextTetromino() -> Tetromino {
         
-        guard !tetrominoQueue.isEmpty else { return }
-        
-        tetromino = tetrominoQueue[0]
-        tetromino.prepareInitialCoordinatesOnBoard()
-        board.highlightCells(at: tetromino.coordinates)
-        
-        tetrominoQueue = Array(tetrominoQueue.dropFirst())
-        let newTetromino = tetrominoGenerator()
-        tetrominoQueue.append(newTetromino)
+        let nextTetromino = dequeueTetromino()
+        nextTetromino.prepareInitialCoordinatesOnBoard()
+
+        return nextTetromino
     }
     
     func moveTetrominoRight() {
@@ -135,9 +124,47 @@ class GameManager {
         gameController.rotate(coordinates: tetromino.coordinates, within: tetromino.type.enclosedRegion)
     }
     
+    func saveTetromino() {
+        
+        guard canSaveTetromino else { return }
+        canSaveTetromino = false
+        
+        let currentTetromino = tetromino
+        
+        if let savedTetromino = savedTetromino {
+            tetromino = Tetromino(type: savedTetromino.type, orientation: .one)
+        } else {
+            tetromino = dequeueTetromino()
+        }
+        
+        let centerXPosition = Int(ceil(Double(board.columnCount) / 2))
+        tetromino.adjustXPositionFromOrigin(by: centerXPosition - 1)
+        savedTetromino = currentTetromino
+        
+        board.moveHighlightedCells(from: currentTetromino.coordinates,
+                                   to: tetromino.coordinates,
+                                   using: tetromino.color)
+    }
+    
+    private func dequeueTetromino() -> Tetromino {
+        
+        var nextTetromino = Tetromino()
+
+        if !tetrominoQueue.isEmpty {
+            nextTetromino = tetrominoQueue[0]
+            
+            tetrominoQueue = Array(tetrominoQueue.dropFirst())
+            let newTetromino = tetrominoGenerator()
+            tetrominoQueue.append(newTetromino)
+        }
+        
+        return nextTetromino
+    }
+    
     func reset() {
         
         board.clear()
+        canSaveTetromino = true
     }
 
     func stopGame() {
