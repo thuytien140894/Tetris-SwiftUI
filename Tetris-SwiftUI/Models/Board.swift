@@ -201,9 +201,21 @@ struct Board {
         
         return true
     }
+    
+    func shadeCells(at coordinates: [Coordinate]) {
+        
+        cells.forEach { rowCells in
+            rowCells.forEach { $0.isShaded = false }
+        }
+        
+        coordinates.forEach { coordinate in
+            guard let cell = self.cell(at: coordinate) else { return }
+            cell.isShaded = true
+        }
+    }
 }
 
-private class CellIterator: Equatable {
+private final class CellIterator: Equatable {
     
     let cell: Cell
     var isVisited = false

@@ -59,6 +59,12 @@ struct GameController {
     /// no longer be dropped.
     func hardDrop(coordinates: [Coordinate]) {
         
+        let lockedCoordinates = lock(coordinates: coordinates)
+        subject.send(.new(coordinates, lockedCoordinates))
+    }
+    
+    func lock(coordinates: [Coordinate]) -> [Coordinate] {
+        
         var currentCoordinates: [Coordinate] = []
         var newCoordinates = coordinates
         var filteredCoordinates: [Coordinate] = []
@@ -68,7 +74,7 @@ struct GameController {
             filteredCoordinates = exclude(coordinates: newCoordinates, from: currentCoordinates)
         } while movementValidator(filteredCoordinates)
         
-        subject.send(.new(coordinates, currentCoordinates))
+        return currentCoordinates
     }
     
     func moveRight(coordinates: [Coordinate]) {

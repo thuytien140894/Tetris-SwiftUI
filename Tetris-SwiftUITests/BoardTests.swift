@@ -10,7 +10,7 @@ import XCTest
 
 @testable import Tetris_SwiftUI
 
-class BoardTests: XCTestCase {
+final class BoardTests: XCTestCase {
 
     func testInitialization() {
         

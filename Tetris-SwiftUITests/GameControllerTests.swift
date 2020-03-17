@@ -11,7 +11,7 @@ import Combine
 
 @testable import Tetris_SwiftUI
 
-class GameControllerTests: XCTestCase {
+final class GameControllerTests: XCTestCase {
     
     private var cancellableSet = Set<AnyCancellable>()
     

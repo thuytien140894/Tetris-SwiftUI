@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-class GameManager {
+final class GameManager {
     
     @Binding private var board: Board
     @Binding private var tetrominoQueue: [Tetromino]
@@ -21,7 +21,13 @@ class GameManager {
         makeGameController()
     }()
     
-    private var tetromino = Tetromino()
+    private var tetromino = Tetromino() {
+        didSet {
+            tetromino.positionIsChanged = tetrominoPositionIsChanged
+            tetrominoPositionIsChanged.send()
+        }
+    }
+    private let tetrominoPositionIsChanged = PassthroughSubject<Void, Never>()
     private var cancellableSet = Set<AnyCancellable>()
     private var canSaveTetromino = true
     
@@ -36,17 +42,29 @@ class GameManager {
         self._savedTetromino = savedTetromino
         self.eventTrigger = eventTrigger
         self.tetrominoGenerator = tetrominoGenerator
+        
+        tetrominoPositionIsChanged
+            .tryReceivingOnMainThread()
+            .sink { [weak self] _ in
+                self?.projectLockedPosition()
+            }
+            .store(in: &cancellableSet)
+    }
+    
+    private func projectLockedPosition() {
+        
+        let lockedCoordinates = gameController.lock(coordinates: tetromino.coordinates)
+        board.shadeCells(at: lockedCoordinates)
     }
     
     func startGame() {
         
-        tetromino = nextTetromino()
+        nextRound()
         
         eventTrigger
-            .receiveOnMainThreadIfPossible()
+            .tryReceivingOnMainThread()
             .sink { [weak self] _ in
-                guard let self = self else { return }
-                self.dropTetromino()
+                self?.dropTetromino()
             }
             .store(in: &cancellableSet)
     }
@@ -60,7 +78,7 @@ class GameManager {
         
         let subject = PassthroughSubject<MovementResult, Never>()
         subject
-            .receiveOnMainThreadIfPossible()
+            .tryReceivingOnMainThread()
             .sink { [weak self] result in
                 guard let self = self else { return }
                 switch result {
@@ -77,13 +95,13 @@ class GameManager {
     
     private func updateBoard(from oldCoordinates: [Coordinate], to newCoordinates: [Coordinate]) {
         
-        if Tetromino.compare(coordinates: self.tetromino.coordinates,
+        if Tetromino.compare(coordinates: tetromino.coordinates,
                              anotherCoordinates: oldCoordinates) {
             board.dehighlightCells(at: oldCoordinates)
             board.highlightCells(at: newCoordinates, using: tetromino.color)
             tetromino.coordinates = newCoordinates
         } else {
-            self.board.moveHighlightedCells(from: oldCoordinates, to: newCoordinates)
+            board.moveHighlightedCells(from: oldCoordinates, to: newCoordinates)
         }
     }
     
@@ -98,6 +116,7 @@ class GameManager {
         }
         
         tetromino = nextTetromino()
+        
         canSaveTetromino = true
     }
     
@@ -177,7 +196,7 @@ extension Publisher {
     
     /// Returns a publisher that delivers elements on the main UI thread if
     /// the app is not running tests.
-    func receiveOnMainThreadIfPossible() -> AnyPublisher<Self.Output, Self.Failure> {
+    func tryReceivingOnMainThread() -> AnyPublisher<Self.Output, Self.Failure> {
         
         let isUnitTesting = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
         guard !isUnitTesting else {

@@ -53,7 +53,10 @@ struct GameView: View {
                                   savedTetromino: $savedTetromino,
                                   eventTrigger: timer.eraseToAnyPublisher(),
                                   tetrominoGenerator: generateTetromino)
-        gameManager?.startGame()
+        
+        DispatchQueue.main.async {
+            self.gameManager?.startGame()
+        }
     }
     
     private func makeBoard(width: CGFloat, height: CGFloat) -> Board {

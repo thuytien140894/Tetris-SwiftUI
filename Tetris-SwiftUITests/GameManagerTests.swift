@@ -12,7 +12,7 @@ import SwiftUI
 
 @testable import Tetris_SwiftUI
 
-class GameManagerTests: XCTestCase {
+final class GameManagerTests: XCTestCase {
     
     private var board = Board(rowCount: 4, columnCount: 4)
     private lazy var tetrominoQueue = {
@@ -51,12 +51,11 @@ class GameManagerTests: XCTestCase {
             }
         )
         
-        let tetrominoGenerator = { Tetromino() }
         return GameManager(board: boardBinding,
                            tetrominoQueue: queueBinding,
                            savedTetromino: savedTetrominoBinding,
                            eventTrigger: mockTimer.eraseToAnyPublisher(),
-                           tetrominoGenerator: tetrominoGenerator)
+                           tetrominoGenerator: { Tetromino() })
     }()
     
     override func setUp() {
@@ -181,6 +180,8 @@ class GameManagerTests: XCTestCase {
     
     func testLineClear() throws {
         
+        gameManager.startGame()
+        
         /// Fills the last two rows.
         let lastSecondRow = board.rowCount - 2
         board.cells[lastSecondRow].forEach { $0.isOpen = false }
@@ -188,7 +189,6 @@ class GameManagerTests: XCTestCase {
         let lastRow = board.rowCount - 1
         board.cells[lastRow].forEach { $0.isOpen = false }
         
-        gameManager.startGame()
         tetromino.coordinates = [(0, 1), (1, 1), (0, 2), (1, 2)]
         board.highlightCells(at: tetromino.coordinates)
         
@@ -288,6 +288,42 @@ class GameManagerTests: XCTestCase {
         try indices.forEach { coordinate in
             let cell = try XCTUnwrap(board.cell(at: coordinate), "A cell should exist.")
             areOpen ? XCTAssert(cell.isOpen) : XCTAssertFalse(cell.isOpen)
+        }
+    }
+    
+    func testProjectingLockedPosition() {
+
+        let boardBinding = Binding(
+            get: { [weak self] in
+                self?.board ?? Board()
+            },
+            set: { [weak self] in
+                self?.board = $0
+            }
+        )
+
+        let manager = GameManager(board: boardBinding,
+                                  tetrominoQueue: .constant(tetrominoQueue),
+                                  savedTetromino: .constant(savedTetromino),
+                                  eventTrigger: mockTimer.eraseToAnyPublisher(),
+                                  tetrominoGenerator: { Tetromino() })
+        manager.startGame()
+        
+        let shadedCoordinates = [(0, 2), (0, 3), (1, 3), (1, 2)]
+        shadedCoordinates.forEach { coordinate in
+            guard let cell = board.cell(at: coordinate) else {
+                return XCTFail("Cell should exist.")
+            }
+            XCTAssert(cell.isShaded)
+        }
+        
+        tetromino.coordinates = [(2, 0), (2, 1), (3, 1), (3, 0)]
+        let newShadedCoordinates = [(2, 2), (2, 3), (3, 3), (3, 2)]
+        newShadedCoordinates.forEach { coordinate in
+            guard let cell = board.cell(at: coordinate) else {
+                return XCTFail("Cell should exist.")
+            }
+            XCTAssert(cell.isShaded)
         }
     }
 }

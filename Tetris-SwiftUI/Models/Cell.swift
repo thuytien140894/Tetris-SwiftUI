@@ -8,12 +8,21 @@
 
 import SwiftUI
 
-class Cell: ObservableObject {
+final class Cell: ObservableObject {
     
     let position: Coordinate
-    @Published var isOpen = true
+    
+    @Published var isOpen = true {
+        didSet {
+            if !isOpen && isShaded {
+                isShaded = false
+            }
+        }
+    }
+    
     @Published var color: Color = .clear
     @Published var isHidden = false
+    @Published var isShaded = false
     
     convenience init() {
         

@@ -11,7 +11,7 @@ import SwiftUI
 
 @testable import Tetris_SwiftUI
 
-class CellTests: XCTestCase {
+final class CellTests: XCTestCase {
     
     func testInitialization() {
         
@@ -23,5 +23,14 @@ class CellTests: XCTestCase {
         
         cell = Cell()
         XCTAssert(cell.position == (0, 0))
+    }
+    
+    func testDisablingShadingWhenCellIsNotOpen() {
+        
+        let cell = Cell()
+        cell.isShaded = true
+        cell.isOpen = false
+        
+        XCTAssertFalse(cell.isShaded)
     }
 }

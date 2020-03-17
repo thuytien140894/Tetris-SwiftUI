@@ -8,11 +8,14 @@
 
 import XCTest
 import SwiftUI
+import Combine
 
 @testable import Tetris_SwiftUI
 
 class TetrominoTests: XCTestCase {
 
+    private var cancellableSet = Set<AnyCancellable>()
+    
     func testTetrominoDimensions() {
         
         var tetromino = Tetromino(type: .i, orientation: .one)
@@ -131,5 +134,36 @@ class TetrominoTests: XCTestCase {
         
         XCTAssert(Tetromino.compare(coordinates: [(0, 1)], anotherCoordinates: [(0, 1)]))
         XCTAssertFalse(Tetromino.compare(coordinates: [(0, 1)], anotherCoordinates: [(1, 1)]))
+    }
+    
+    func testNotifyingPositionChange() {
+        
+        let tetromino = Tetromino()
+        tetromino.coordinates = [(0, 0), (1, 2)]
+        
+        let positionIsChanged = PassthroughSubject<Void, Never>()
+        positionIsChanged
+            .sink { return XCTAssert(true) }
+            .store(in: &cancellableSet)
+        tetromino.positionIsChanged = positionIsChanged
+        
+        tetromino.coordinates = [(0, 0), (2, 2)]
+    }
+    
+    func testNotNotifyPositionChange() {
+        
+        let tetromino = Tetromino()
+        tetromino.coordinates = [(0, 0), (1, 2)]
+        
+        let positionIsChanged = PassthroughSubject<Void, Never>()
+        var positionChangeIsNotified = false
+        positionIsChanged
+            .sink { positionChangeIsNotified = true }
+            .store(in: &cancellableSet)
+        
+        tetromino.positionIsChanged = positionIsChanged
+        tetromino.coordinates = [(0, 4), (1, 3)]
+        
+        XCTAssertFalse(positionChangeIsNotified)
     }
 }

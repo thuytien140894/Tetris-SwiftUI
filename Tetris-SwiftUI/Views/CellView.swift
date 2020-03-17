@@ -13,12 +13,17 @@ struct CellView: View {
     @ObservedObject var cell: Cell
     
     var body: some View {
-        let view = Rectangle()
+        let view = RoundedRectangle(cornerRadius: 2)
             .fill(cell.isOpen ? Color.black : cell.color)
-            .opacity(0.8)
-        return cell.isHidden
-            ? AnyView(view.hidden())
-            : AnyView(view)
+            .opacity(cell.isShaded ? 0 : 0.8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(Color.blue, lineWidth: cell.isShaded ? 2 : 0)
+            )
+        return
+            cell.isHidden
+                ? AnyView(view.hidden())
+                : AnyView(view)
     }
 }
 

@@ -37,6 +37,8 @@ struct BoardView: View {
 struct BoardView_Previews: PreviewProvider {
     static var previews: some View {
         let board = Board(rowCount: 4, columnCount: 5)
+        board.cells[3][1].isShaded = true
+        board.cells[3][2].isShaded = true
         return BoardView(board: .constant(board), cellWidth: .constant(50))
     }
 }
