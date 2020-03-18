@@ -13,20 +13,19 @@ struct TetrominoQueueView: View {
     @Binding var queue: [Tetromino]
     
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
-            Text("NEXT")
-                .fontWeight(.bold)
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+                .fill(Color.blue.opacity(0.5))
             
-            if queue.count > 0 {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(.sRGBLinear, red: 0.2, green: 0.5, blue: 0.95, opacity: 0.3))
-                    TetrominoView(type: queue[0].type)
-                }
-                ForEach(1..<queue.count) { index in
-                    TetrominoView(type: self.queue[index].type)
+            VStack(alignment: .center, spacing: 20) {
+                Text("NEXT")
+                    .fontWeight(.bold)
+                
+                ForEach(queue) { tetromino in
+                    TetrominoView(type: tetromino.type)
                 }
             }
+            .padding()
         }
     }
 }

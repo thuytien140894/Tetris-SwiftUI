@@ -20,17 +20,29 @@ struct HoldView: View {
     }
     
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
-            Text("HOLD")
-                .fontWeight(.bold)
-            ZStack {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.sRGBLinear, red: 0.2, green: 0.95, blue: 0.5, opacity: 0.3))
-                if tetromino != nil {
-                    TetrominoView(type: tetromino!.type)
+        ZStack {
+            RoundedRectangle(cornerRadius: 5)
+                .fill(Color.blue.opacity(0.5))
+            
+            VStack(alignment: .center, spacing: 0) {
+                Text("HOLD")
+                    .font(.system(.body, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.black.opacity(0.8))
+                    .padding()
+                
+                ZStack {
+                    RoundedRectangle(cornerRadius: 5)
+                        .fill(Color.black.opacity(0.8))
+                    
+                    if tetromino != nil {
+                        TetrominoView(type: tetromino!.type)
+                            .padding(5)
+                    }
                 }
+                .padding(EdgeInsets(top: 0, leading: 5, bottom: 5, trailing: 5))
+                .onTapGesture { self.actionHandler() }
             }
-            .onTapGesture { self.actionHandler() }
         }
     }
 }

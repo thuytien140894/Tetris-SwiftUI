@@ -31,6 +31,10 @@ struct BoardView: View {
                 }
             }
         }
+        .overlay(
+            RoundedRectangle(cornerRadius: 2)
+                .stroke(Color.blue.opacity(0.5), lineWidth: 4)
+        )
     }
 }
 

@@ -16,29 +16,38 @@ struct GameView: View {
     @State private var tetrominoQueue: [Tetromino] = []
     @State private var savedTetromino: Tetromino?
     
+    private let backgroundGradient = Gradient(colors: [.red, .yellow, .green, .blue, .purple, .red])
+    
     var body: some View {
-        HStack(alignment: .top, spacing: 15) {
-            HoldView(tetromino: $savedTetromino) { self.gameManager?.saveTetromino() }
-                .frame(width: 80, height: 100)
+        ZStack {
+            AngularGradient(gradient: backgroundGradient,
+                            center: .center)
+                .opacity(0.5)
+                .edgesIgnoringSafeArea(.all)
             
-            GeometryReader { geometry in
-                BoardView(board: self.$board, cellWidth: self.$cellWidth)
-                    .onAppear(perform: { self.setUpBoard(size: geometry.size) })
-                    .onTapGesture { self.gameManager?.rotateTetromino() }
-                    .gesture(
-                        DragGesture()
-                            .onEnded { value in
-                                value.translation.width > 0
-                                    ? self.gameManager?.moveTetrominoRight()
-                                    : self.gameManager?.moveTetrominoLeft()
-                            }
-                )
+            HStack(alignment: .top, spacing: 15) {
+                HoldView(tetromino: $savedTetromino) { self.gameManager?.saveTetromino() }
+                    .frame(width: 80, height: 120)
+                
+                GeometryReader { geometry in
+                    BoardView(board: self.$board, cellWidth: self.$cellWidth)
+                        .onAppear(perform: { self.setUpBoard(size: geometry.size) })
+                        .onTapGesture { self.gameManager?.rotateTetromino() }
+                        .gesture(
+                            DragGesture()
+                                .onEnded { value in
+                                    value.translation.width > 0
+                                        ? self.gameManager?.moveTetrominoRight()
+                                        : self.gameManager?.moveTetrominoLeft()
+                                }
+                    )
+                }
+                
+                TetrominoQueueView(queue: $tetrominoQueue)
+                    .frame(width: 80, height: 240)
             }
-            
-            TetrominoQueueView(queue: $tetrominoQueue)
-                .frame(width: 80, height: 240)
+            .padding(EdgeInsets(top: 150, leading: 5, bottom: 50, trailing: 5))
         }
-        .padding(EdgeInsets(top: 150, leading: 5, bottom: 20, trailing: 5))
     }
     
     private func setUpBoard(size: CGSize) {

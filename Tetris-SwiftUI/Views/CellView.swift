@@ -18,7 +18,7 @@ struct CellView: View {
             .opacity(cell.isShaded ? 0 : 0.8)
             .overlay(
                 RoundedRectangle(cornerRadius: 2)
-                    .stroke(Color.blue, lineWidth: cell.isShaded ? 2 : 0)
+                    .stroke(Color.blue.opacity(0.5), lineWidth: cell.isShaded ? 2 : 0)
             )
         return
             cell.isHidden
