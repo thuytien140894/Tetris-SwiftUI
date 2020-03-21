@@ -8,12 +8,23 @@
 
 import SwiftUI
 
+extension HorizontalAlignment {
+    enum ScoreAndBoardAlignment: AlignmentID {
+        static func defaultValue(in d: ViewDimensions) -> CGFloat {
+            d[.trailing]
+        }
+    }
+
+    static let scoreAndBoardAlignment = HorizontalAlignment(ScoreAndBoardAlignment.self)
+}
+
 struct GameView: View {
     
     @State private var gameManager: GameManager?
     @State private var board = Board()
     @State private var tetrominoQueue: [Tetromino] = []
     @State private var savedTetromino: Tetromino?
+    @State private var score = 0
     @State private var showStartOverlay = true
     
     private let backgroundGradient = Gradient(colors: [.red, .yellow, .green, .blue, .purple, .red])
@@ -25,25 +36,30 @@ struct GameView: View {
                 .opacity(0.5)
                 .edgesIgnoringSafeArea(.all)
             
-            HStack(alignment: .top, spacing: 15) {
-                HoldView(tetromino: $savedTetromino) { self.gameManager?.saveTetromino() }
-                    .frame(width: 80, height: 120)
+            VStack(alignment: .scoreAndBoardAlignment, spacing: 5) {
+                ScoreView(score: $score)
                 
-                BoardView(board: self.$board)
-                    .onTapGesture { self.gameManager?.rotateTetromino() }
-                    .gesture(
-                        DragGesture()
-                            .onEnded { value in
-                                value.translation.width > 0
-                                    ? self.gameManager?.moveTetrominoRight()
-                                    : self.gameManager?.moveTetrominoLeft()
-                        }
-                )
-                
-                TetrominoQueueView(queue: $tetrominoQueue)
-                    .frame(width: 80, height: 240)
+                HStack(alignment: .top, spacing: 10) {
+                    HoldView(tetromino: $savedTetromino) { self.gameManager?.saveTetromino() }
+                        .frame(width: 80, height: 120)
+                    
+                    BoardView(board: self.$board)
+                        .alignmentGuide(.scoreAndBoardAlignment) { d in d[.trailing] }
+                        .onTapGesture { self.gameManager?.rotateTetromino() }
+                        .gesture(
+                            DragGesture()
+                                .onEnded { value in
+                                    value.translation.width > 0
+                                        ? self.gameManager?.moveTetrominoRight()
+                                        : self.gameManager?.moveTetrominoLeft()
+                            }
+                    )
+                    
+                    TetrominoQueueView(queue: $tetrominoQueue)
+                        .frame(width: 80, height: 240)
+                }
             }
-            .padding(EdgeInsets(top: 100, leading: 5, bottom: 50, trailing: 5))
+            .padding(EdgeInsets(top: 40, leading: 5, bottom: 40, trailing: 5))
             
             if showStartOverlay {
                 StartView(actionHandler: startGame)

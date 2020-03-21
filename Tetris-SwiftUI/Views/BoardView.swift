@@ -38,6 +38,7 @@ struct BoardView: View {
                 RoundedRectangle(cornerRadius: 2)
                     .stroke(Color.blue.opacity(0.5), lineWidth: 4)
             )
+            .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
             .onAppear(perform: { self.setUpBoard(width: geometry.size.width, height: geometry.size.height) })
         }
     }
