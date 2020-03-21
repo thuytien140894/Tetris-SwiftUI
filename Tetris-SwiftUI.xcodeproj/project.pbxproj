@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		E811C6A4241DA9FE00C7E09F /* HoldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E811C6A3241DA9FE00C7E09F /* HoldView.swift */; };
 		E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82CF57523FA1BD50064007D /* GameControllerTests.swift */; };
+		E82FBEBA2426C32D00F9F0A5 /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82FBEB92426C32D00F9F0A5 /* StartView.swift */; };
 		E83F429D24172704006FC2BA /* CellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83F429C24172704006FC2BA /* CellTests.swift */; };
 		E842B498241CBD720024FA82 /* TetrominoQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E842B497241CBD720024FA82 /* TetrominoQueueView.swift */; };
 		E842B49A241CC0A20024FA82 /* TetrominoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E842B499241CC0A20024FA82 /* TetrominoView.swift */; };
@@ -53,6 +54,7 @@
 /* Begin PBXFileReference section */
 		E811C6A3241DA9FE00C7E09F /* HoldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoldView.swift; sourceTree = "<group>"; };
 		E82CF57523FA1BD50064007D /* GameControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControllerTests.swift; sourceTree = "<group>"; };
+		E82FBEB92426C32D00F9F0A5 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		E83F429C24172704006FC2BA /* CellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellTests.swift; sourceTree = "<group>"; };
 		E842B497241CBD720024FA82 /* TetrominoQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrominoQueueView.swift; sourceTree = "<group>"; };
 		E842B499241CC0A20024FA82 /* TetrominoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrominoView.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				E842B499241CC0A20024FA82 /* TetrominoView.swift */,
 				E8FAD07223E2AB840097C050 /* CellView.swift */,
 				E811C6A3241DA9FE00C7E09F /* HoldView.swift */,
+				E82FBEB92426C32D00F9F0A5 /* StartView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -355,6 +358,7 @@
 				E8FAD03723DE5A700097C050 /* AppDelegate.swift in Sources */,
 				E885651E242098200012AEF8 /* Orientation.swift in Sources */,
 				E8598B5223F3DDEF0051EBDC /* GameController.swift in Sources */,
+				E82FBEBA2426C32D00F9F0A5 /* StartView.swift in Sources */,
 				E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */,
 				E8BD3E6523E3FA3200B2CEA1 /* Tetromino.swift in Sources */,
 				E842B498241CBD720024FA82 /* TetrominoQueueView.swift in Sources */,

@@ -309,6 +309,7 @@ final class GameManagerTests: XCTestCase {
                                   tetrominoGenerator: { Tetromino() })
         manager.startGame()
         
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         let shadedCoordinates = [(0, 2), (0, 3), (1, 3), (1, 2)]
         shadedCoordinates.forEach { coordinate in
             guard let cell = board.cell(at: coordinate) else {

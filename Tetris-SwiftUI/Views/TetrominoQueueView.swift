@@ -19,10 +19,16 @@ struct TetrominoQueueView: View {
             
             VStack(alignment: .center, spacing: 20) {
                 Text("NEXT")
+                    .font(.system(.body, design: .rounded))
                     .fontWeight(.bold)
+                    .foregroundColor(Color.black.opacity(0.8))
                 
-                ForEach(queue) { tetromino in
-                    TetrominoView(type: tetromino.type)
+                if queue.count > 0 {
+                    ForEach(queue) { tetromino in
+                        TetrominoView(type: tetromino.type)
+                    }
+                } else {
+                    Spacer()
                 }
             }
             .padding()

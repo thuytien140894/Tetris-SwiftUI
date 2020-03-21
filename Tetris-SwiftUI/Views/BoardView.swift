@@ -11,30 +11,47 @@ import SwiftUI
 struct BoardView: View {
     
     @Binding private var board: Board
-    @Binding private var cellWidth: CGFloat
     
-    init(board: Binding<Board>, cellWidth: Binding<CGFloat>) {
+    @State private var cellWidth: CGFloat = 0
+    
+    private let spacing: CGFloat = 2
+    
+    init(board: Binding<Board>) {
         
         self._board = board
-        self._cellWidth = cellWidth
     }
     
     var body: some View {
         
-        VStack(spacing: 2) {
-            ForEach(0..<self.board.rowCount, id: \.self) { row in
-                HStack(spacing: 2) {
-                    ForEach(0..<self.board.columnCount, id: \.self) { column in
-                        CellView(cell: self.board.cells[row][column])
-                            .frame(width: self.cellWidth, height: self.cellWidth)
+        GeometryReader { geometry in
+            VStack(spacing: self.spacing) {
+                ForEach(0..<self.board.rowCount, id: \.self) { row in
+                    HStack(spacing: self.spacing) {
+                        ForEach(0..<self.board.columnCount, id: \.self) { column in
+                            CellView(cell: self.board.cells[row][column])
+                                .frame(width: self.cellWidth, height: self.cellWidth)
+                        }
                     }
                 }
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(Color.blue.opacity(0.5), lineWidth: 4)
+            )
+            .onAppear(perform: { self.setUpBoard(width: geometry.size.width, height: geometry.size.height) })
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: 2)
-                .stroke(Color.blue.opacity(0.5), lineWidth: 4)
-        )
+    }
+    
+    private func setUpBoard(width: CGFloat, height: CGFloat) {
+        
+        let columnCount = 10
+        let screenRatio = height / width
+        let estimatedRowCount = CGFloat(columnCount) * screenRatio
+        let rowCount = Int(estimatedRowCount.rounded(.down))
+        board = Board(rowCount: rowCount, columnCount: columnCount)
+        
+        let totalSpacing = spacing * CGFloat(columnCount)
+        cellWidth = (width - totalSpacing) / CGFloat(columnCount)
     }
 }
 
@@ -43,6 +60,6 @@ struct BoardView_Previews: PreviewProvider {
         let board = Board(rowCount: 4, columnCount: 5)
         board.cells[3][1].isShaded = true
         board.cells[3][2].isShaded = true
-        return BoardView(board: .constant(board), cellWidth: .constant(50))
+        return BoardView(board: .constant(board))
     }
 }

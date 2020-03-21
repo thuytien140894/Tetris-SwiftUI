@@ -123,6 +123,11 @@ final class GameManager {
     private func nextTetromino() -> Tetromino {
         
         let nextTetromino = dequeueTetromino()
+        
+        let availableSpace = board.columnCount - nextTetromino.width
+        let xOffset = Int.random(in: 0...availableSpace)
+        nextTetromino.adjustXPositionFromOrigin(by: xOffset)
+        
         nextTetromino.prepareInitialCoordinatesOnBoard()
 
         return nextTetromino
