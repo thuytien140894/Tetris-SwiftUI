@@ -11,6 +11,7 @@
 		E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82CF57523FA1BD50064007D /* GameControllerTests.swift */; };
 		E82FBEBA2426C32D00F9F0A5 /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82FBEB92426C32D00F9F0A5 /* StartView.swift */; };
 		E82FBEBC2426D42400F9F0A5 /* ScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82FBEBB2426D42400F9F0A5 /* ScoreView.swift */; };
+		E82FBEBF2427018D00F9F0A5 /* ScoreCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E82FBEBE2427018D00F9F0A5 /* ScoreCalculator.swift */; };
 		E83F429D24172704006FC2BA /* CellTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83F429C24172704006FC2BA /* CellTests.swift */; };
 		E842B498241CBD720024FA82 /* TetrominoQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E842B497241CBD720024FA82 /* TetrominoQueueView.swift */; };
 		E842B49A241CC0A20024FA82 /* TetrominoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E842B499241CC0A20024FA82 /* TetrominoView.swift */; };
@@ -21,6 +22,7 @@
 		E8A68F4F23EFEEC7007CF5BF /* GameManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */; };
 		E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */; };
 		E8BD3E6523E3FA3200B2CEA1 /* Tetromino.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */; };
+		E8E45EAD24274FC0000AFBE7 /* ScoreCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8E45EAC24274FC0000AFBE7 /* ScoreCalculatorTests.swift */; };
 		E8FAD03723DE5A700097C050 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD03623DE5A700097C050 /* AppDelegate.swift */; };
 		E8FAD03923DE5A700097C050 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD03823DE5A700097C050 /* SceneDelegate.swift */; };
 		E8FAD03B23DE5A700097C050 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8FAD03A23DE5A700097C050 /* GameView.swift */; };
@@ -57,6 +59,7 @@
 		E82CF57523FA1BD50064007D /* GameControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameControllerTests.swift; sourceTree = "<group>"; };
 		E82FBEB92426C32D00F9F0A5 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		E82FBEBB2426D42400F9F0A5 /* ScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreView.swift; sourceTree = "<group>"; };
+		E82FBEBE2427018D00F9F0A5 /* ScoreCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculator.swift; sourceTree = "<group>"; };
 		E83F429C24172704006FC2BA /* CellTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellTests.swift; sourceTree = "<group>"; };
 		E842B497241CBD720024FA82 /* TetrominoQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrominoQueueView.swift; sourceTree = "<group>"; };
 		E842B499241CC0A20024FA82 /* TetrominoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrominoView.swift; sourceTree = "<group>"; };
@@ -67,6 +70,7 @@
 		E8A68F4E23EFEEC7007CF5BF /* GameManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManagerTests.swift; sourceTree = "<group>"; };
 		E8BD3E6223E3F8EB00B2CEA1 /* GameManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameManager.swift; sourceTree = "<group>"; };
 		E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tetromino.swift; sourceTree = "<group>"; };
+		E8E45EAC24274FC0000AFBE7 /* ScoreCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCalculatorTests.swift; sourceTree = "<group>"; };
 		E8FAD03323DE5A700097C050 /* Tetris-SwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tetris-SwiftUI.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E8FAD03623DE5A700097C050 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E8FAD03823DE5A700097C050 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -131,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				E8FAD06A23E005F80097C050 /* Cell.swift */,
+				E82FBEBE2427018D00F9F0A5 /* ScoreCalculator.swift */,
 				E8FAD06C23E0079E0097C050 /* Board.swift */,
 				E8BD3E6423E3FA3200B2CEA1 /* Tetromino.swift */,
 				E885651B242097ED0012AEF8 /* TetrominoType.swift */,
@@ -193,6 +198,7 @@
 				E86A24A323F0088B00A56191 /* BoardTests.swift */,
 				E82CF57523FA1BD50064007D /* GameControllerTests.swift */,
 				E83F429C24172704006FC2BA /* CellTests.swift */,
+				E8E45EAC24274FC0000AFBE7 /* ScoreCalculatorTests.swift */,
 			);
 			path = "Tetris-SwiftUITests";
 			sourceTree = "<group>";
@@ -364,6 +370,7 @@
 				E82FBEBC2426D42400F9F0A5 /* ScoreView.swift in Sources */,
 				E82FBEBA2426C32D00F9F0A5 /* StartView.swift in Sources */,
 				E8BD3E6323E3F8EB00B2CEA1 /* GameManager.swift in Sources */,
+				E82FBEBF2427018D00F9F0A5 /* ScoreCalculator.swift in Sources */,
 				E8BD3E6523E3FA3200B2CEA1 /* Tetromino.swift in Sources */,
 				E842B498241CBD720024FA82 /* TetrominoQueueView.swift in Sources */,
 				E811C6A4241DA9FE00C7E09F /* HoldView.swift in Sources */,
@@ -382,6 +389,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E8E45EAD24274FC0000AFBE7 /* ScoreCalculatorTests.swift in Sources */,
 				E8FAD04E23DE5A710097C050 /* TetrominoTests.swift in Sources */,
 				E82CF57623FA1BD50064007D /* GameControllerTests.swift in Sources */,
 				E83F429D24172704006FC2BA /* CellTests.swift in Sources */,

@@ -16,7 +16,9 @@ final class GameManager {
     @Binding private var savedTetromino: Tetromino?
     
     private let eventTrigger: AnyPublisher<Date, Never>
+    private let scoreCalculator: ScoreCalculator
     private let tetrominoGenerator: () -> Tetromino
+    
     private lazy var gameController = {
         makeGameController()
     }()
@@ -30,17 +32,20 @@ final class GameManager {
     private let tetrominoPositionIsChanged = PassthroughSubject<Void, Never>()
     private var cancellableSet = Set<AnyCancellable>()
     private var canSaveTetromino = true
+    private var tetrominoIsHardDropped = false
     
     init(board: Binding<Board>,
          tetrominoQueue: Binding<[Tetromino]>,
          savedTetromino: Binding<Tetromino?>,
          eventTrigger: AnyPublisher<Date, Never>,
+         scoreCalculator: ScoreCalculator,
          tetrominoGenerator: @escaping () -> Tetromino) {
         
         self._board = board
         self._tetrominoQueue = tetrominoQueue
         self._savedTetromino = savedTetromino
         self.eventTrigger = eventTrigger
+        self.scoreCalculator = scoreCalculator
         self.tetrominoGenerator = tetrominoGenerator
         
         tetrominoPositionIsChanged
@@ -107,7 +112,10 @@ final class GameManager {
     
     private func nextRound() {
         
-        if board.tryLineClear() {
+        let clearedLineCount = board.tryLineClear()
+        if clearedLineCount > 0 {
+            scoreCalculator.linesAreCleared(count: clearedLineCount, usingHardDrop: tetrominoIsHardDropped)
+            
             let cellGroups = board.aggregateCellBlocks()
             cellGroups.forEach { cellGroup in
                 let coordinates = cellGroup.map { $0.position }
@@ -118,6 +126,7 @@ final class GameManager {
         tetromino = nextTetromino()
         
         canSaveTetromino = true
+        tetrominoIsHardDropped = false 
     }
     
     private func nextTetromino() -> Tetromino {
@@ -150,6 +159,7 @@ final class GameManager {
     
     func hardDropTetromino() {
         
+        tetrominoIsHardDropped = true
         gameController.hardDrop(coordinates: tetromino.coordinates)
     }
     

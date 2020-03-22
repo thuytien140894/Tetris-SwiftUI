@@ -22,6 +22,7 @@ final class GameManagerTests: XCTestCase {
     
     private let mockTimer = PassthroughSubject<Date, Never>()
     private var tetromino = Tetromino(type: .o, orientation: .one)
+    private let scoreCalculator = ScoreCalculator()
     
     private lazy var gameManager: GameManager = {
         let boardBinding = Binding(
@@ -55,6 +56,7 @@ final class GameManagerTests: XCTestCase {
                            tetrominoQueue: queueBinding,
                            savedTetromino: savedTetrominoBinding,
                            eventTrigger: mockTimer.eraseToAnyPublisher(),
+                           scoreCalculator: scoreCalculator,
                            tetrominoGenerator: { Tetromino() })
     }()
     
@@ -67,6 +69,8 @@ final class GameManagerTests: XCTestCase {
         
         gameManager.reset()
         gameManager.stopGame()
+        
+        scoreCalculator.reset()
     }
     
     func testDroppingTetromino() throws {
@@ -105,6 +109,7 @@ final class GameManagerTests: XCTestCase {
                                   tetrominoQueue: queueBinding,
                                   savedTetromino: .constant(nil), 
                                   eventTrigger: mockTimer.eraseToAnyPublisher(),
+                                  scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: tetrominoGenerator)
         
         manager.startGame()
@@ -211,6 +216,38 @@ final class GameManagerTests: XCTestCase {
         let lastSecondRowCoordinates = board.cells[lastSecondRow].map { $0.position }
         try assertCells(areOpen: true, at: lastSecondRowCoordinates + [(2, 3), (3, 3)])
         try assertCells(areOpen: false, at: [(0, 3), (1, 3)])
+        
+        XCTAssertEqual(scoreCalculator.score, 100)
+    }
+    
+    func testLineClearWithHardDrop() {
+        
+        let firstTetromino = Tetromino(type: .o, orientation: .one)
+        let secondTetromino = Tetromino(type: .o, orientation: .one)
+        tetrominoQueue = [firstTetromino, secondTetromino]
+        
+        gameManager.startGame()
+        
+        /// Line clear with hard drop.
+        let lastRow = board.rowCount - 1
+        board.cells[lastRow].forEach { $0.isOpen = false }
+        
+        firstTetromino.coordinates = [(0, 0), (1, 0), (0, 1), (1, 1)]
+        gameManager.hardDropTetromino()
+        
+        /// Triggers next round since the current tetromino is locked.
+        mockTimer.send(Date())
+        XCTAssertEqual(scoreCalculator.score, 42)
+        
+        /// Line clear without hard drop.
+        scoreCalculator.reset()
+        board.cells[lastRow].forEach { $0.isOpen = false }
+        secondTetromino.coordinates = [(0, 1), (1, 1), (0, 2), (1, 2)]
+        mockTimer.send(Date())
+        
+        /// Hard drop flag should be reset for each round
+        /// and score is calculated accordingly.
+        XCTAssertEqual(scoreCalculator.score, 40)
     }
     
     func testSavingFirstTetromino() throws {
@@ -318,6 +355,7 @@ final class GameManagerTests: XCTestCase {
                                   tetrominoQueue: .constant(tetrominoQueue),
                                   savedTetromino: .constant(savedTetromino),
                                   eventTrigger: mockTimer.eraseToAnyPublisher(),
+                                  scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: { Tetromino() })
         manager.startGame()
         

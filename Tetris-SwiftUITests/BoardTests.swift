@@ -59,7 +59,8 @@ final class BoardTests: XCTestCase {
         let cells = board.cells[0]
         cells.forEach { $0.isOpen = false }
         
-        XCTAssert(board.tryLineClear())
+        let clearedLineCount = board.tryLineClear()
+        XCTAssertEqual(clearedLineCount, 1)
         cells.forEach {
             XCTAssert($0.isOpen)
         }

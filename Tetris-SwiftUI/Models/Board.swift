@@ -66,19 +66,16 @@ struct Board {
     
     /// Checks for any rows that are filled completely and
     /// clears it by marking their cells as open. 
-    func tryLineClear() -> Bool {
+    func tryLineClear() -> Int {
         
         let rowsToClear = filledRows()
-        guard !rowsToClear.isEmpty else {
-            return false
-        }
         
         rowsToClear.forEach { row in
             let rowCells = cells[row]
             rowCells.forEach { $0.isOpen = true }
         }
         
-        return true
+        return rowsToClear.count
     }
     
     private func filledRows() -> [Int] {

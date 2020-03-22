@@ -13,7 +13,7 @@ struct ScoreView: View {
     @Binding private var score: Int
     
     init(score: Binding<Int>) {
-        
+
         self._score = score
     }
     

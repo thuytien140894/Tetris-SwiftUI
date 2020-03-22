@@ -24,8 +24,9 @@ struct GameView: View {
     @State private var board = Board()
     @State private var tetrominoQueue: [Tetromino] = []
     @State private var savedTetromino: Tetromino?
-    @State private var score = 0
     @State private var showStartOverlay = true
+    
+    @ObservedObject private var scoreCalculator = ScoreCalculator()
     
     private let backgroundGradient = Gradient(colors: [.red, .yellow, .green, .blue, .purple, .red])
     
@@ -37,7 +38,7 @@ struct GameView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack(alignment: .scoreAndBoardAlignment, spacing: 5) {
-                ScoreView(score: $score)
+                ScoreView(score: self.$scoreCalculator.score)
                 
                 HStack(alignment: .top, spacing: 10) {
                     HoldView(tetromino: $savedTetromino) { self.gameManager?.saveTetromino() }
@@ -45,10 +46,6 @@ struct GameView: View {
                     
                     BoardView(board: self.$board)
                         .alignmentGuide(.scoreAndBoardAlignment) { d in d[.trailing] }
-                        .onTapGesture { self.gameManager?.rotateTetromino() }
-                        .gesture(
-                            DragGesture().onEnded { self.dragGestureDidEnd(at: $0.translation) }
-                        )
                     
                     TetrominoQueueView(queue: $tetrominoQueue)
                         .frame(width: 80, height: 240)
@@ -61,6 +58,10 @@ struct GameView: View {
             }
         }
         .onAppear(perform: setUpGameManager)
+        .onTapGesture { self.gameManager?.rotateTetromino() }
+        .gesture(
+            DragGesture().onEnded { self.dragGestureDidEnd(at: $0.translation) }
+        )
     }
     
     private func dragGestureDidEnd(at offset: CGSize) {
@@ -91,6 +92,7 @@ struct GameView: View {
                                   tetrominoQueue: $tetrominoQueue,
                                   savedTetromino: $savedTetromino,
                                   eventTrigger: timer.eraseToAnyPublisher(),
+                                  scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: generateTetromino)
     }
     
