@@ -160,6 +160,18 @@ final class GameManagerTests: XCTestCase {
         try assertCells(areOpen: false, at: cellIndices)
     }
     
+    func testHardDroppingTetromino() throws {
+        
+        gameManager.startGame()
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        
+        gameManager.hardDropTetromino()
+        try assertCells(areOpen: true, at: [(0, 0), (0, 1), (1, 1), (1, 0)])
+        let cellIndices = [(0, 2), (0, 3), (1, 3), (1, 2)]
+        try assertCells(areOpen: false, at: cellIndices)
+
+    }
+    
     func testMovingTetrominoShouldFail() throws {
         
         gameManager.startGame()

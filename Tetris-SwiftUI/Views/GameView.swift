@@ -47,13 +47,8 @@ struct GameView: View {
                         .alignmentGuide(.scoreAndBoardAlignment) { d in d[.trailing] }
                         .onTapGesture { self.gameManager?.rotateTetromino() }
                         .gesture(
-                            DragGesture()
-                                .onEnded { value in
-                                    value.translation.width > 0
-                                        ? self.gameManager?.moveTetrominoRight()
-                                        : self.gameManager?.moveTetrominoLeft()
-                            }
-                    )
+                            DragGesture().onEnded { self.dragGestureDidEnd(at: $0.translation) }
+                        )
                     
                     TetrominoQueueView(queue: $tetrominoQueue)
                         .frame(width: 80, height: 240)
@@ -66,6 +61,17 @@ struct GameView: View {
             }
         }
         .onAppear(perform: setUpGameManager)
+    }
+    
+    private func dragGestureDidEnd(at offset: CGSize) {
+        
+        if offset.width > 0 { /// Swipe right.
+            self.gameManager?.moveTetrominoRight()
+        } else if offset.width < 0 { /// Swipe left.
+            self.gameManager?.moveTetrominoLeft()
+        } else if offset.height > 0 { /// Swipe down.
+            self.gameManager?.hardDropTetromino()
+        }
     }
     
     private func startGame() {

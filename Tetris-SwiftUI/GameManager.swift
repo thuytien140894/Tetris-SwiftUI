@@ -148,6 +148,11 @@ final class GameManager {
         gameController.rotate(coordinates: tetromino.coordinates, within: tetromino.type.enclosedRegion)
     }
     
+    func hardDropTetromino() {
+        
+        gameController.hardDrop(coordinates: tetromino.coordinates)
+    }
+    
     func saveTetromino() {
         
         guard canSaveTetromino else { return }
