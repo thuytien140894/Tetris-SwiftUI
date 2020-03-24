@@ -24,7 +24,8 @@ struct GameView: View {
     @State private var board = Board()
     @State private var tetrominoQueue: [Tetromino] = []
     @State private var savedTetromino: Tetromino?
-    @State private var showStartOverlay = true
+    @State private var showStartView = true
+    @State private var showSettingView = false
     
     @ObservedObject private var scoreCalculator = ScoreCalculator()
     
@@ -47,14 +48,31 @@ struct GameView: View {
                     BoardView(board: self.$board)
                         .alignmentGuide(.scoreAndBoardAlignment) { d in d[.trailing] }
                     
-                    TetrominoQueueView(queue: $tetrominoQueue)
-                        .frame(width: 80, height: 240)
+                    VStack {
+                        TetrominoQueueView(queue: $tetrominoQueue)
+                            .frame(width: 80, height: 240)
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            self.showSettingView = true
+                        }) {
+                            Image("settings")
+                                .resizable()
+                                .frame(width: 35, height: 35)
+                                .foregroundColor(Color.black.opacity(0.8))
+                        }
+                    }
                 }
             }
-            .padding(EdgeInsets(top: 40, leading: 5, bottom: 40, trailing: 5))
+            .padding(EdgeInsets(top: 40, leading: 5, bottom: 0, trailing: 5))
             
-            if showStartOverlay {
+            if showStartView {
                 StartView(actionHandler: startGame)
+            }
+            
+            if showSettingView {
+                SettingView()
             }
         }
         .onAppear(perform: setUpGameManager)
@@ -81,7 +99,7 @@ struct GameView: View {
             self.gameManager?.startGame()
         }
         
-        showStartOverlay = false
+        showStartView = false
     }
     
     private func setUpGameManager() {
