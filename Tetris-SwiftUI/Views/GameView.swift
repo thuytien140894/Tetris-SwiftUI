@@ -27,6 +27,7 @@ struct GameView: View {
     @State private var savedTetromino: Tetromino?
     @State private var showStartView = true
     @State private var showSettingView = false
+    @State private var showGameOver = false 
     
     @ObservedObject private var scoreCalculator = ScoreCalculator()
     
@@ -74,7 +75,15 @@ struct GameView: View {
             
             if showSettingView {
                 if self.gameManager != nil {
-                    SettingView(actionHandler: self.gameManager!, isPresented: $showSettingView)
+                    SettingView(actionHandler: self.gameManager!,
+                                isPresented: $showSettingView)
+                }
+            }
+            
+            if showGameOver {
+                GameOverView(score: scoreCalculator.score) {
+                    self.showGameOver = false 
+                    self.gameManager?.startGame()
                 }
             }
         }
@@ -114,6 +123,7 @@ struct GameView: View {
         gameManager = GameManager(board: $board,
                                   tetrominoQueue: $tetrominoQueue,
                                   savedTetromino: $savedTetromino,
+                                  gameIsOver: $showGameOver,
                                   eventTrigger: eventTrigger,
                                   scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: generateTetromino)

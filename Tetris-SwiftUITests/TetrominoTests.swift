@@ -166,4 +166,18 @@ class TetrominoTests: XCTestCase {
         
         XCTAssertFalse(positionChangeIsNotified)
     }
+    
+    func testCompleteVisibility() {
+        
+        let tetromino = Tetromino()
+        
+        tetromino.coordinates = [(0, 1), (0, 2)]
+        XCTAssert(tetromino.isCompletelyVisible())
+        
+        tetromino.coordinates = [(0, -1), (0, 2)]
+        XCTAssertFalse(tetromino.isCompletelyVisible())
+        
+        tetromino.coordinates = [(0, 1), (-1, 2)]
+        XCTAssertFalse(tetromino.isCompletelyVisible())
+    }
 }

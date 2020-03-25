@@ -109,6 +109,12 @@ class Tetromino: Identifiable {
         }
     }
     
+    func isCompletelyVisible() -> Bool {
+        
+        let negativeCoordinates = coordinates.first { $0.x < 0 || $0.y < 0 }
+        return negativeCoordinates == nil
+    }
+    
     static func compare(coordinates: [Coordinate], anotherCoordinates: [Coordinate]) -> Bool {
         
         guard coordinates.count == anotherCoordinates.count else {

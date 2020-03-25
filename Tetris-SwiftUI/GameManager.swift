@@ -14,6 +14,7 @@ final class GameManager {
     @Binding private var board: Board
     @Binding private var tetrominoQueue: [Tetromino]
     @Binding private var savedTetromino: Tetromino?
+    @Binding private var gameIsOver: Bool
     
     private let eventTrigger: () -> AnyPublisher<Date, Never>
     private var cancellableEventTrigger: AnyCancellable?
@@ -38,6 +39,7 @@ final class GameManager {
     init(board: Binding<Board>,
          tetrominoQueue: Binding<[Tetromino]>,
          savedTetromino: Binding<Tetromino?>,
+         gameIsOver: Binding<Bool>,
          eventTrigger: @escaping () -> AnyPublisher<Date, Never>,
          scoreCalculator: ScoreCalculator,
          tetrominoGenerator: @escaping () -> Tetromino) {
@@ -45,6 +47,7 @@ final class GameManager {
         self._board = board
         self._tetrominoQueue = tetrominoQueue
         self._savedTetromino = savedTetromino
+        self._gameIsOver = gameIsOver
         self.eventTrigger = eventTrigger
         self.scoreCalculator = scoreCalculator
         self.tetrominoGenerator = tetrominoGenerator
@@ -96,6 +99,12 @@ final class GameManager {
     
     private func nextRound() {
         
+        guard !isToppedOut() else {
+            gameIsOver = true
+            pauseGame()
+            return
+        }
+        
         let clearedLineCount = board.tryLineClear()
         if clearedLineCount > 0 {
             scoreCalculator.linesAreCleared(count: clearedLineCount, usingHardDrop: tetrominoIsHardDropped)
@@ -111,6 +120,11 @@ final class GameManager {
         
         canSaveTetromino = true
         tetrominoIsHardDropped = false 
+    }
+    
+    private func isToppedOut() -> Bool {
+        
+        return !tetromino.isCompletelyVisible()
     }
     
     private func nextTetromino() -> Tetromino {
@@ -199,6 +213,7 @@ extension GameManager: SettingActionHandler {
         board.clear()
         savedTetromino = nil
         canSaveTetromino = true
+        gameIsOver = false
         scoreCalculator.reset()
     }
     
