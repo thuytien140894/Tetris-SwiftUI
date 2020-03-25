@@ -8,7 +8,23 @@
 
 import SwiftUI
 
+protocol SettingActionHandler: class {
+    func startGame()
+    func pauseGame()
+    func continueGame()
+}
+
 struct SettingView: View {
+    
+    private let actionHandler: SettingActionHandler?
+    @Binding private var isPresented: Bool
+    
+    init(actionHandler: SettingActionHandler?,
+         isPresented: Binding<Bool>) {
+        
+        self.actionHandler = actionHandler
+        self._isPresented = isPresented
+    }
     
     var body: some View {
         ZStack {
@@ -17,7 +33,10 @@ struct SettingView: View {
                 .edgesIgnoringSafeArea(.all)
             
             HStack(spacing: 25) {
-                Button(action: {}) {
+                Button(action: {
+                    self.isPresented = false
+                    self.actionHandler?.startGame()
+                }) {
                     VStack {
                         Image(systemName: "arrow.clockwise.circle.fill")
                             .resizable()
@@ -40,7 +59,10 @@ struct SettingView: View {
                         .stroke(Color.white, lineWidth: 0.5)
                 )
                 
-                Button(action: {}) {
+                Button(action: {
+                    self.isPresented = false
+                    self.actionHandler?.continueGame()
+                }) {
                     VStack {
                         Image(systemName: "play.circle.fill")
                             .resizable()
@@ -65,11 +87,12 @@ struct SettingView: View {
             }
             .padding()
         }
+        .onAppear(perform: { self.actionHandler?.pauseGame() })
     }
 }
 
 struct PauseView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingView()
+        SettingView(actionHandler: nil, isPresented: .constant(true))
     }
 }

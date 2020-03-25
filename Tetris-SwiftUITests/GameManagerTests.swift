@@ -55,7 +55,7 @@ final class GameManagerTests: XCTestCase {
         return GameManager(board: boardBinding,
                            tetrominoQueue: queueBinding,
                            savedTetromino: savedTetrominoBinding,
-                           eventTrigger: mockTimer.eraseToAnyPublisher(),
+                           eventTrigger: { self.mockTimer.eraseToAnyPublisher() },
                            scoreCalculator: scoreCalculator,
                            tetrominoGenerator: { Tetromino() })
     }()
@@ -66,11 +66,6 @@ final class GameManagerTests: XCTestCase {
         
         tetrominoQueue = [tetromino]
         tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
-        
-        gameManager.reset()
-        gameManager.stopGame()
-        
-        scoreCalculator.reset()
     }
     
     func testDroppingTetromino() throws {
@@ -108,7 +103,7 @@ final class GameManagerTests: XCTestCase {
         let manager = GameManager(board: .constant(board),
                                   tetrominoQueue: queueBinding,
                                   savedTetromino: .constant(nil), 
-                                  eventTrigger: mockTimer.eraseToAnyPublisher(),
+                                  eventTrigger: { self.mockTimer.eraseToAnyPublisher() },
                                   scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: tetrominoGenerator)
         
@@ -275,9 +270,9 @@ final class GameManagerTests: XCTestCase {
     
     func testSavingAnotherTetromino() throws {
         
-        savedTetromino = Tetromino(type: .s, orientation: .one)
-        
         gameManager.startGame()
+        
+        savedTetromino = Tetromino(type: .s, orientation: .one)
         tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
         
         XCTAssertEqual(tetrominoQueue.count, 1)
@@ -332,6 +327,26 @@ final class GameManagerTests: XCTestCase {
         XCTAssert(savedTetromino === thirdTetromino)
     }
     
+    func testPausingGame() throws {
+
+        gameManager.startGame()
+        tetromino.coordinates = [(0, 0), (0, 1), (1, 1), (1, 0)]
+        
+        mockTimer.send(Date())
+
+        /// Tetromino gets dropped in response to the timer being fired.
+        try assertCells(areOpen: true, at: [(0, 0), (1, 0)])
+        let cellIndices = [(0, 1), (0, 2), (1, 2), (1, 1)]
+        try assertCells(areOpen: false, at: cellIndices)
+        
+        gameManager.pauseGame()
+        mockTimer.send(Date())
+        
+        /// Tetromino doesn't get dropped because timer subscription is cancelled. 
+        try assertCells(areOpen: false, at: cellIndices)
+        try assertCells(areOpen: true, at: [(0, 3), (1, 3)])
+    }
+    
     private func assertCells(areOpen: Bool, at indices: [Coordinate]) throws {
         
         try indices.forEach { coordinate in
@@ -354,7 +369,7 @@ final class GameManagerTests: XCTestCase {
         let manager = GameManager(board: boardBinding,
                                   tetrominoQueue: .constant(tetrominoQueue),
                                   savedTetromino: .constant(savedTetromino),
-                                  eventTrigger: mockTimer.eraseToAnyPublisher(),
+                                  eventTrigger: { self.mockTimer.eraseToAnyPublisher() },
                                   scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: { Tetromino() })
         manager.startGame()
@@ -376,5 +391,52 @@ final class GameManagerTests: XCTestCase {
             }
             XCTAssert(cell.isShaded)
         }
+    }
+    
+    func testStartingGame() {
+        
+        scoreCalculator.score = 40
+        board.cells[0][0].isOpen = false
+        
+        let firstTetromino = Tetromino(type: .i, orientation: .one)
+        let secondTetromino = Tetromino(type: .o, orientation: .one)
+        let thirdTetromino = Tetromino(type: .t, orientation: .one)
+        tetrominoQueue = [firstTetromino, secondTetromino, thirdTetromino]
+        
+        gameManager.startGame()
+        gameManager.saveTetromino()
+        
+        /// Saving should be disabled.
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === firstTetromino)
+        
+        gameManager.startGame()
+        
+        /// Score, board, and hold queue should be reset.
+        XCTAssertEqual(scoreCalculator.score, 0)
+        XCTAssert(board.cells[0][0].isOpen)
+        XCTAssertNil(savedTetromino)
+        
+        /// Saving is enabled again.
+        gameManager.saveTetromino()
+        XCTAssert(savedTetromino === thirdTetromino)
+    }
+    
+    func testContinuingGame() {
+
+        var eventTriggerIsCalled = false
+        let eventTrigger: () -> AnyPublisher<Date, Never> = {
+            eventTriggerIsCalled = true
+            return PassthroughSubject<Date, Never>().eraseToAnyPublisher()
+        }
+        
+        let manager = GameManager(board: .constant(board),
+                                  tetrominoQueue: .constant(tetrominoQueue),
+                                  savedTetromino: .constant(savedTetromino),
+                                  eventTrigger: eventTrigger,
+                                  scoreCalculator: scoreCalculator,
+                                  tetrominoGenerator: { Tetromino() })
+        manager.continueGame()
+        XCTAssert(eventTriggerIsCalled)
     }
 }

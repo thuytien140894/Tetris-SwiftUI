@@ -60,7 +60,10 @@ struct Board {
     func clear() {
         
         cells.forEach {
-            $0.forEach { $0.isOpen = true }
+            $0.forEach {
+                $0.isOpen = true
+                $0.isShaded = false
+            }
         }
     }
     

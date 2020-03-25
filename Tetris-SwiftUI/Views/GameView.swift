@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 extension HorizontalAlignment {
     enum ScoreAndBoardAlignment: AlignmentID {
@@ -72,7 +73,9 @@ struct GameView: View {
             }
             
             if showSettingView {
-                SettingView()
+                if self.gameManager != nil {
+                    SettingView(actionHandler: self.gameManager!, isPresented: $showSettingView)
+                }
             }
         }
         .onAppear(perform: setUpGameManager)
@@ -95,21 +98,23 @@ struct GameView: View {
     
     private func startGame() {
         
-        DispatchQueue.main.async {
-            self.gameManager?.startGame()
-        }
+        self.gameManager?.startGame()
         
         showStartView = false
     }
     
     private func setUpGameManager() {
         
-        let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+        let eventTrigger: () -> AnyPublisher<Date, Never> = {
+            let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+            return timer.eraseToAnyPublisher()
+        }
+        
         tetrominoQueue = (0..<3).map { _ in generateTetromino() }
         gameManager = GameManager(board: $board,
                                   tetrominoQueue: $tetrominoQueue,
                                   savedTetromino: $savedTetromino,
-                                  eventTrigger: timer.eraseToAnyPublisher(),
+                                  eventTrigger: eventTrigger,
                                   scoreCalculator: scoreCalculator,
                                   tetrominoGenerator: generateTetromino)
     }

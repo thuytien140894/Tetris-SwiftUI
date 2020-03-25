@@ -48,9 +48,11 @@ final class BoardTests: XCTestCase {
         let board = Board(rowCount: 1, columnCount: 1)
         let cell = board.cells[0][0]
         cell.isOpen = false
+        cell.isShaded = true
         
         board.clear()
         XCTAssert(cell.isOpen)
+        XCTAssertFalse(cell.isShaded)
     }
     
     func testLineClear() {

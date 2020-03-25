@@ -15,7 +15,8 @@ final class GameManager {
     @Binding private var tetrominoQueue: [Tetromino]
     @Binding private var savedTetromino: Tetromino?
     
-    private let eventTrigger: AnyPublisher<Date, Never>
+    private let eventTrigger: () -> AnyPublisher<Date, Never>
+    private var cancellableEventTrigger: AnyCancellable?
     private let scoreCalculator: ScoreCalculator
     private let tetrominoGenerator: () -> Tetromino
     
@@ -37,7 +38,7 @@ final class GameManager {
     init(board: Binding<Board>,
          tetrominoQueue: Binding<[Tetromino]>,
          savedTetromino: Binding<Tetromino?>,
-         eventTrigger: AnyPublisher<Date, Never>,
+         eventTrigger: @escaping () -> AnyPublisher<Date, Never>,
          scoreCalculator: ScoreCalculator,
          tetrominoGenerator: @escaping () -> Tetromino) {
         
@@ -60,23 +61,6 @@ final class GameManager {
         
         let lockedCoordinates = gameController.lock(coordinates: tetromino.coordinates)
         board.shadeCells(at: lockedCoordinates)
-    }
-    
-    func startGame() {
-        
-        nextRound()
-        
-        eventTrigger
-            .tryReceivingOnMainThread()
-            .sink { [weak self] _ in
-                self?.dropTetromino()
-            }
-            .store(in: &cancellableSet)
-    }
-    
-    private func dropTetromino() {
-        
-        gameController.drop(coordinates: tetromino.coordinates)
     }
     
     private func makeGameController() -> GameController {
@@ -199,16 +183,42 @@ final class GameManager {
         
         return nextTetromino
     }
+}
+
+extension GameManager: SettingActionHandler {
+
+    func startGame() {
+        
+        reset()
+        nextRound()
+        continueGame()
+    }
     
-    func reset() {
+    private func reset() {
         
         board.clear()
+        savedTetromino = nil
         canSaveTetromino = true
+        scoreCalculator.reset()
     }
+    
+    func pauseGame() {
 
-    func stopGame() {
+        cancellableEventTrigger?.cancel()
+    }
+    
+    func continueGame() {
         
-        cancellableSet.forEach { $0.cancel() }
+        cancellableEventTrigger = eventTrigger()
+            .tryReceivingOnMainThread()
+            .sink { [weak self] _ in
+                self?.dropTetromino()
+            }
+    }
+    
+    private func dropTetromino() {
+        
+        gameController.drop(coordinates: tetromino.coordinates)
     }
 }
 
